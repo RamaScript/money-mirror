@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:money_mirror/core/utils/app_colors.dart';
+import 'package:money_mirror/core/utils/app_strings.dart';
 import 'package:money_mirror/core/utils/snack_utils.dart';
 import 'package:money_mirror/database/dao/account_dao.dart';
 import 'package:money_mirror/models/account_model.dart';
@@ -69,9 +70,12 @@ class EditAccountDialogState extends State<EditAccountDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      backgroundColor: Colors.grey.shade900,
+      backgroundColor: isDark ? theme.cardColor : Colors.white,
       insetPadding: EdgeInsets.symmetric(horizontal: 18),
       contentPadding: EdgeInsets.all(20),
 
@@ -81,8 +85,12 @@ class EditAccountDialogState extends State<EditAccountDialog> {
           children: [
             Center(
               child: Text(
-                "Edit Account",
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                AppStrings.EDIT_ACCOUNT,
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: theme.textTheme.titleLarge?.color,
+                ),
               ),
             ),
             Divider(color: AppColors.primaryColor),
@@ -90,12 +98,14 @@ class EditAccountDialogState extends State<EditAccountDialog> {
             // INITIAL AMOUNT
             CustomTextField(
               controller: initialAmountCtrl,
-              label: "Initial Amount",
+              label: AppStrings.INITIAL_AMOUNT,
               showTitle: false,
               keyboardType: TextInputType.number,
-              titleTextColor: Colors.white70,
-              backgroundColor: Colors.white10,
-              inputTextColor: Colors.white,
+              titleTextColor: theme.textTheme.bodyMedium?.color,
+              backgroundColor: isDark
+                  ? Colors.white.withOpacity(0.1)
+                  : Colors.grey.shade100,
+              inputTextColor: theme.textTheme.bodyLarge?.color,
               borderColor: AppColors.primaryColor,
               focusedBorderColor: AppColors.secondryColor,
               placeHolder: "Enter Initial Amount",
@@ -106,11 +116,13 @@ class EditAccountDialogState extends State<EditAccountDialog> {
             // NAME
             CustomTextField(
               controller: nameCtrl,
-              label: "Name",
+              label: AppStrings.NAME,
               showTitle: false,
-              titleTextColor: Colors.white70,
-              backgroundColor: Colors.white10,
-              inputTextColor: Colors.white,
+              titleTextColor: theme.textTheme.bodyMedium?.color,
+              backgroundColor: isDark
+                  ? Colors.white.withOpacity(0.1)
+                  : Colors.grey.shade100,
+              inputTextColor: theme.textTheme.bodyLarge?.color,
               borderColor: AppColors.primaryColor,
               focusedBorderColor: AppColors.secondryColor,
               placeHolder: "Enter Account Name",
@@ -121,11 +133,13 @@ class EditAccountDialogState extends State<EditAccountDialog> {
             // ICON INPUT
             CustomTextField(
               controller: iconCtrl,
-              label: "Icon",
+              label: AppStrings.ICON,
               showTitle: false,
-              titleTextColor: Colors.white70,
-              backgroundColor: Colors.white10,
-              inputTextColor: Colors.white,
+              titleTextColor: theme.textTheme.bodyMedium?.color,
+              backgroundColor: isDark
+                  ? Colors.white.withOpacity(0.1)
+                  : Colors.grey.shade100,
+              inputTextColor: theme.textTheme.bodyLarge?.color,
               borderColor: AppColors.primaryColor,
               focusedBorderColor: AppColors.secondryColor,
               placeHolder: "Enter Icon",
@@ -156,9 +170,13 @@ class EditAccountDialogState extends State<EditAccountDialog> {
                       margin: EdgeInsets.only(right: 8, top: 6),
                       padding: EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Colors.white10,
+                        color: isDark
+                            ? Colors.white.withOpacity(0.1)
+                            : Colors.grey.shade100,
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.white24),
+                        border: Border.all(
+                          color: isDark ? Colors.white24 : Colors.grey.shade300,
+                        ),
                       ),
                       child: Text(e, style: TextStyle(fontSize: 20)),
                     ),
@@ -173,7 +191,10 @@ class EditAccountDialogState extends State<EditAccountDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: Text("Cancel", style: TextStyle(color: Colors.grey)),
+          child: Text(
+            AppStrings.CANCEL,
+            style: TextStyle(color: theme.textTheme.bodyMedium?.color),
+          ),
         ),
         ElevatedButton(
           style: ElevatedButton.styleFrom(
@@ -185,7 +206,7 @@ class EditAccountDialogState extends State<EditAccountDialog> {
           ),
           onPressed: _updateAccount,
           child: Text(
-            "Save",
+            AppStrings.SAVE,
             style: TextStyle(color: Colors.white, fontSize: 16),
           ),
         ),

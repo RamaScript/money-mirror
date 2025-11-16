@@ -6,7 +6,7 @@ class BudgetTable {
   static const String colMonth = "month";
   static const String colYear = "year";
   static const String colAmount = "amount";
-  static const String colType = "type  ";
+  static const String colType = "type"; // ✅ FIXED: Removed extra spaces
 
   static const String createTable =
       """

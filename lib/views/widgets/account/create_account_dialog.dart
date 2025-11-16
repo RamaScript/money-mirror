@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:money_mirror/core/utils/app_colors.dart';
+import 'package:money_mirror/core/utils/app_strings.dart';
 import 'package:money_mirror/core/utils/snack_utils.dart';
 import 'package:money_mirror/database/dao/account_dao.dart';
 import 'package:money_mirror/models/account_model.dart';
@@ -74,9 +75,12 @@ class CreateAccountDialogState extends State<CreateAccountDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      backgroundColor: Colors.grey.shade900,
+      backgroundColor: isDark ? theme.cardColor : Colors.white,
       insetPadding: EdgeInsets.symmetric(horizontal: 18),
       contentPadding: EdgeInsets.all(20),
 
@@ -86,8 +90,12 @@ class CreateAccountDialogState extends State<CreateAccountDialog> {
           children: [
             Center(
               child: Text(
-                "Add new Account",
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                AppStrings.ADD_ACCOUNT,
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: theme.textTheme.titleLarge?.color,
+                ),
               ),
             ),
             Divider(color: AppColors.primaryColor),
@@ -97,11 +105,13 @@ class CreateAccountDialogState extends State<CreateAccountDialog> {
             // NAME
             CustomTextField(
               controller: nameCtrl,
-              label: "Name",
+              label: AppStrings.NAME,
               showTitle: true,
-              titleTextColor: Colors.white70,
-              backgroundColor: Colors.white10,
-              inputTextColor: Colors.white,
+              titleTextColor: theme.textTheme.bodyMedium?.color,
+              backgroundColor: isDark
+                  ? Colors.white.withOpacity(0.1)
+                  : Colors.grey.shade100,
+              inputTextColor: theme.textTheme.bodyLarge?.color,
               borderColor: AppColors.primaryColor,
               focusedBorderColor: AppColors.secondryColor,
               placeHolder: "Enter Account Name",
@@ -112,12 +122,14 @@ class CreateAccountDialogState extends State<CreateAccountDialog> {
             // INITIAL AMOUNT
             CustomTextField(
               controller: initialAmountCtrl,
-              label: "Initial Amount",
+              label: AppStrings.INITIAL_AMOUNT,
               showTitle: true,
               keyboardType: TextInputType.numberWithOptions(decimal: true),
-              titleTextColor: Colors.white70,
-              backgroundColor: Colors.white10,
-              inputTextColor: Colors.white,
+              titleTextColor: theme.textTheme.bodyMedium?.color,
+              backgroundColor: isDark
+                  ? Colors.white.withOpacity(0.1)
+                  : Colors.grey.shade100,
+              inputTextColor: theme.textTheme.bodyLarge?.color,
               borderColor: AppColors.primaryColor,
               focusedBorderColor: AppColors.secondryColor,
               placeHolder: "Enter Initial Amount",
@@ -128,11 +140,13 @@ class CreateAccountDialogState extends State<CreateAccountDialog> {
             // ICON INPUT
             CustomTextField(
               controller: iconCtrl,
-              label: "Icon",
+              label: AppStrings.ICON,
               showTitle: true,
-              titleTextColor: Colors.white70,
-              backgroundColor: Colors.white10,
-              inputTextColor: Colors.white,
+              titleTextColor: theme.textTheme.bodyMedium?.color,
+              backgroundColor: isDark
+                  ? Colors.white.withOpacity(0.1)
+                  : Colors.grey.shade100,
+              inputTextColor: theme.textTheme.bodyLarge?.color,
               borderColor: AppColors.primaryColor,
               focusedBorderColor: AppColors.secondryColor,
               placeHolder: "Select an emoji",
@@ -166,12 +180,14 @@ class CreateAccountDialogState extends State<CreateAccountDialog> {
                       decoration: BoxDecoration(
                         color: iconCtrl.text == e
                             ? AppColors.primaryColor.withOpacity(0.3)
-                            : Colors.white10,
+                            : (isDark
+                                ? Colors.white.withOpacity(0.1)
+                                : Colors.grey.shade100),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
                           color: iconCtrl.text == e
                               ? AppColors.primaryColor
-                              : Colors.white24,
+                              : (isDark ? Colors.white24 : Colors.grey.shade300),
                           width: iconCtrl.text == e ? 2 : 1,
                         ),
                       ),
@@ -188,7 +204,10 @@ class CreateAccountDialogState extends State<CreateAccountDialog> {
       actions: [
         TextButton(
           onPressed: isSaving ? null : () => Navigator.pop(context),
-          child: Text("Cancel", style: TextStyle(color: Colors.grey)),
+          child: Text(
+            AppStrings.CANCEL,
+            style: TextStyle(color: theme.textTheme.bodyMedium?.color),
+          ),
         ),
         ElevatedButton(
           style: ElevatedButton.styleFrom(
@@ -209,7 +228,7 @@ class CreateAccountDialogState extends State<CreateAccountDialog> {
                   ),
                 )
               : Text(
-                  "Save",
+                  AppStrings.SAVE,
                   style: TextStyle(color: Colors.white, fontSize: 16),
                 ),
         ),

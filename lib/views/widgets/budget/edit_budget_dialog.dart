@@ -134,9 +134,7 @@ class _EditBudgetDialogState extends State<EditBudgetDialog> {
               focusedBorderColor: AppColors.secondryColor,
               placeHolder: "Enter amount ",
               keyboardType: TextInputType.numberWithOptions(decimal: true),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'^ d+ .? d{0,2}')),
-              ],
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             ),
           ],
         ),

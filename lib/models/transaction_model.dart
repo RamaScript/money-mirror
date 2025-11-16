@@ -1,8 +1,7 @@
 class TransactionModel {
   final int? id;
-  final String title;
   final double amount;
-  final String type; // INCOME / EXPENSE
+  final String type; // INCOME / EXPENSE / TRANSFER
   final int accountId;
   final int categoryId;
   final String date; // Store as TEXT in SQLite (ISO 8601 format)
@@ -10,7 +9,6 @@ class TransactionModel {
 
   TransactionModel({
     this.id,
-    required this.title,
     required this.amount,
     required this.type,
     required this.accountId,
@@ -23,7 +21,6 @@ class TransactionModel {
   Map<String, dynamic> toMap() {
     return {
       if (id != null) "id": id,
-      "title": title,
       "amount": amount,
       "type": type,
       "account_id": accountId,
@@ -37,7 +34,6 @@ class TransactionModel {
   factory TransactionModel.fromMap(Map<String, dynamic> map) {
     return TransactionModel(
       id: map["id"],
-      title: map["title"],
       amount: (map["amount"] ?? 0).toDouble(),
       type: map["type"],
       accountId: map["account_id"],

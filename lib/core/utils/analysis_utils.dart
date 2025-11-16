@@ -248,4 +248,49 @@ class AnalysisUtils {
     final days = endDate.difference(startDate).inDays + 1;
     return days > 0 ? totalExpense / days : 0.0;
   }
+
+  // Get account-wise breakdown
+  static Future<List<Map<String, dynamic>>> getAccountBreakdown({
+    required DateTime startDate,
+    required DateTime endDate,
+  }) async {
+    final db = await DBHandler().database;
+    return await db.rawQuery(
+      '''
+      SELECT 
+        a.id as account_id,
+        a.name as account_name,
+        a.icon as account_icon,
+        SUM(CASE WHEN t.type = 'INCOME' THEN t.amount ELSE 0 END) as income,
+        SUM(CASE WHEN t.type = 'EXPENSE' THEN t.amount ELSE 0 END) as expense
+      FROM transactions t
+      LEFT JOIN accounts a ON t.account_id = a.id
+      WHERE t.date >= ? AND t.date <= ?
+      GROUP BY t.account_id
+      ORDER BY a.name ASC
+    ''',
+      [startDate.toIso8601String(), endDate.toIso8601String()],
+    );
+  }
+
+  // Get daily income transactions
+  static Future<List<Map<String, dynamic>>> getDailyIncome({
+    required DateTime startDate,
+    required DateTime endDate,
+  }) async {
+    final db = await DBHandler().database;
+    return await db.rawQuery(
+      '''
+      SELECT 
+        DATE(date) as day,
+        SUM(amount) as total
+      FROM transactions
+      WHERE type = 'INCOME'
+        AND date >= ? AND date <= ?
+      GROUP BY DATE(date)
+      ORDER BY date ASC
+    ''',
+      [startDate.toIso8601String(), endDate.toIso8601String()],
+    );
+  }
 }

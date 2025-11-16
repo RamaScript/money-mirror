@@ -13,7 +13,9 @@ import 'package:money_mirror/models/category_model.dart';
 import 'package:money_mirror/models/transaction_model.dart';
 
 class AddTransactionScreen extends StatefulWidget {
-  const AddTransactionScreen({super.key});
+  final Map<String, dynamic>? transactionToEdit;
+
+  const AddTransactionScreen({super.key, this.transactionToEdit});
 
   @override
   State<AddTransactionScreen> createState() => _AddTransactionScreenState();
@@ -34,13 +36,32 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   List<CategoryModel> categories = [];
 
   bool isSaving = false;
+  int? editingTransactionId;
 
   @override
   void initState() {
     super.initState();
-    selectedTime = TimeOfDay.fromDateTime(selectedDate);
+    if (widget.transactionToEdit != null) {
+      _initializeEditMode();
+    } else {
+      selectedTime = TimeOfDay.fromDateTime(selectedDate);
+    }
     loadAccounts();
     loadCategories();
+  }
+
+  void _initializeEditMode() {
+    final transaction = widget.transactionToEdit!;
+    editingTransactionId = transaction['id'] as int?;
+    selectedType = transaction['type'] as String;
+    amountCtrl.text = (transaction['amount'] as num).toStringAsFixed(2);
+    noteCtrl.text = transaction['note']?.toString() ?? '';
+
+    final date = DateTime.parse(transaction['date']);
+    selectedDate = date;
+    selectedTime = TimeOfDay.fromDateTime(date);
+
+    // Will be set after accounts/categories load
   }
 
   @override
@@ -54,7 +75,14 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     final data = await AccountDao.getAccounts();
     setState(() {
       accounts = data.map((e) => AccountModel.fromMap(e)).toList();
-      if (accounts.isNotEmpty && selectedAccount == null) {
+      if (widget.transactionToEdit != null) {
+        // Set selected account from transaction being edited
+        final accountId = widget.transactionToEdit!['account_id'] as int;
+        selectedAccount = accounts.firstWhere(
+          (a) => a.id == accountId,
+          orElse: () => accounts.first,
+        );
+      } else if (accounts.isNotEmpty && selectedAccount == null) {
         selectedAccount = accounts.first;
         if (accounts.length > 1) {
           selectedToAccount = accounts[1];
@@ -75,7 +103,19 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     final data = await CategoryDao.getCategories(type: selectedType);
     setState(() {
       categories = data.map((e) => CategoryModel.fromMap(e)).toList();
-      selectedCategory = categories.isNotEmpty ? categories.first : null;
+      if (widget.transactionToEdit != null &&
+          selectedType != AppStrings.TRANSFER) {
+        // Set selected category from transaction being edited
+        final categoryId = widget.transactionToEdit!['category_id'] as int;
+        if (categoryId > 0) {
+          selectedCategory = categories.firstWhere(
+            (c) => c.id == categoryId,
+            orElse: () => categories.isNotEmpty ? categories.first : null!,
+          );
+        }
+      } else {
+        selectedCategory = categories.isNotEmpty ? categories.first : null;
+      }
     });
   }
 
@@ -88,6 +128,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   }
 
   Future<void> _selectDate() async {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     final pickedDate = await showDatePicker(
       context: context,
       initialDate: selectedDate,
@@ -96,10 +139,15 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.dark(
-              primary: AppColors.primaryColor,
-              surface: Colors.grey.shade900,
-            ),
+            colorScheme: isDark
+                ? ColorScheme.dark(
+                    primary: AppColors.primaryColor,
+                    surface: Colors.grey.shade900,
+                  )
+                : ColorScheme.light(
+                    primary: AppColors.primaryColor,
+                    surface: Colors.white,
+                  ),
           ),
           child: child!,
         );
@@ -112,16 +160,24 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   }
 
   Future<void> _selectTime() async {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     final pickedTime = await showTimePicker(
       context: context,
       initialTime: selectedTime,
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.dark(
-              primary: AppColors.primaryColor,
-              surface: Colors.grey.shade900,
-            ),
+            colorScheme: isDark
+                ? ColorScheme.dark(
+                    primary: AppColors.primaryColor,
+                    surface: Colors.grey.shade900,
+                  )
+                : ColorScheme.light(
+                    primary: AppColors.primaryColor,
+                    surface: Colors.white,
+                  ),
           ),
           child: child!,
         );
@@ -165,7 +221,6 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       try {
         // Create expense transaction from source account
         final expenseTransaction = TransactionModel(
-          title: "Transfer to ${selectedToAccount!.name}",
           amount: parsedAmount,
           type: AppStrings.EXPENSE,
           accountId: selectedAccount!.id!,
@@ -176,7 +231,6 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
         // Create income transaction to destination account
         final incomeTransaction = TransactionModel(
-          title: "Transfer from ${selectedAccount!.name}",
           amount: parsedAmount,
           type: AppStrings.INCOME,
           accountId: selectedToAccount!.id!,
@@ -209,8 +263,6 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
     try {
       final transaction = TransactionModel(
-        title:
-            "${selectedCategory!.name} - ${selectedType == AppStrings.INCOME ? 'Income' : 'Expense'}",
         amount: parsedAmount,
         type: selectedType,
         accountId: selectedAccount!.id!,
@@ -219,20 +271,35 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
         note: noteCtrl.text.trim().isEmpty ? null : noteCtrl.text.trim(),
       );
 
-      await TransactionDao.insertTransaction(transaction.toMap());
-
-      if (mounted) {
-        SnackUtils.success(context, "Transaction added successfully");
-        Navigator.pop(context, true);
+      if (editingTransactionId != null) {
+        // Update existing transaction
+        await TransactionDao.updateTransaction(
+          id: editingTransactionId!,
+          data: transaction.toMap(),
+        );
+        if (mounted) {
+          SnackUtils.success(context, "Transaction updated successfully");
+          Navigator.pop(context, true);
+        }
+      } else {
+        // Insert new transaction
+        await TransactionDao.insertTransaction(transaction.toMap());
+        if (mounted) {
+          SnackUtils.success(context, "Transaction added successfully");
+          Navigator.pop(context, true);
+        }
       }
     } catch (e) {
       setState(() => isSaving = false);
-      SnackUtils.error(context, "Error adding transaction: $e");
+      SnackUtils.error(context, "Error saving transaction: $e");
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -242,7 +309,11 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: true,
-        title: Text("Add Transaction"),
+        title: Text(
+          editingTransactionId != null
+              ? "Edit Transaction"
+              : AppStrings.ADD_TRANSACTION,
+        ),
       ),
       body: accounts.isEmpty
           ? Center(
@@ -256,9 +327,12 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   ),
                   SizedBox(height: 16),
                   Text(
-                    "No accounts found.\nPlease add an account first.",
+                    AppStrings.NO_ACCOUNTS_FOUND,
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 16),
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: theme.textTheme.bodyLarge?.color,
+                    ),
                   ),
                 ],
               ),
@@ -294,32 +368,50 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   SizedBox(height: 20),
 
                   // Notes field
-                  TextField(
-                    controller: noteCtrl,
-                    maxLines: 4,
-                    style: TextStyle(fontSize: 14),
-                    decoration: InputDecoration(
-                      hintText: "Add notes",
-                      hintStyle: TextStyle(color: Colors.grey),
-                      filled: true,
-                      fillColor: Colors.white10,
-                      contentPadding: EdgeInsets.all(12),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: AppColors.primaryColor),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: AppColors.primaryColor),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: AppColors.primaryColor,
-                          width: 2,
+                  Builder(
+                    builder: (context) {
+                      final theme = Theme.of(context);
+                      final isDark = theme.brightness == Brightness.dark;
+                      return TextField(
+                        controller: noteCtrl,
+                        maxLines: 4,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: theme.textTheme.bodyLarge?.color,
                         ),
-                      ),
-                    ),
+                        decoration: InputDecoration(
+                          hintText: AppStrings.ADD_NOTES,
+                          hintStyle: TextStyle(
+                            color: theme.textTheme.bodySmall?.color
+                                ?.withOpacity(0.6),
+                          ),
+                          filled: true,
+                          fillColor: isDark
+                              ? Colors.white10
+                              : Colors.grey.shade100,
+                          contentPadding: EdgeInsets.all(12),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(
+                              color: AppColors.primaryColor,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(
+                              color: AppColors.primaryColor,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(
+                              color: AppColors.primaryColor,
+                              width: 2,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                   ),
 
                   SizedBox(height: 20),
@@ -381,6 +473,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   }
 
   Widget _buildTypeChip(String label, String value) {
+    final theme = Theme.of(context);
     final isSelected = selectedType == value;
     return GestureDetector(
       onTap: () => _changeType(value),
@@ -418,19 +511,28 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   }
 
   Widget _buildAccountSelector() {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return GestureDetector(
       onTap: () => _showAccountPicker(),
       child: Container(
         padding: EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.white10,
+          color: isDark ? Colors.white10 : Colors.grey.shade100,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: AppColors.primaryColor),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Account", style: TextStyle(color: Colors.grey, fontSize: 11)),
+            Text(
+              AppStrings.ACCOUNT,
+              style: TextStyle(
+                color: theme.textTheme.bodySmall?.color,
+                fontSize: 11,
+              ),
+            ),
             SizedBox(height: 6),
             Row(
               children: [
@@ -442,7 +544,11 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 Expanded(
                   child: Text(
                     selectedAccount?.name ?? "Account",
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: theme.textTheme.bodyLarge?.color,
+                    ),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -455,12 +561,15 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   }
 
   Widget _buildToAccountSelector() {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return GestureDetector(
       onTap: () => _showToAccountPicker(),
       child: Container(
         padding: EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.white10,
+          color: isDark ? Colors.white10 : Colors.grey.shade100,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: AppColors.primaryColor),
         ),
@@ -468,8 +577,11 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "To Account",
-              style: TextStyle(color: Colors.grey, fontSize: 11),
+              AppStrings.TO_ACCOUNT,
+              style: TextStyle(
+                color: theme.textTheme.bodySmall?.color,
+                fontSize: 11,
+              ),
             ),
             SizedBox(height: 6),
             Row(
@@ -482,7 +594,11 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 Expanded(
                   child: Text(
                     selectedToAccount?.name ?? "Account",
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: theme.textTheme.bodyLarge?.color,
+                    ),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -495,11 +611,14 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   }
 
   Widget _buildCategorySelector() {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     if (categories.isEmpty) {
       return Container(
         padding: EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.white10,
+          color: isDark ? Colors.white10 : Colors.grey.shade100,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: AppColors.primaryColor),
         ),
@@ -507,13 +626,19 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Category",
-              style: TextStyle(color: Colors.grey, fontSize: 11),
+              AppStrings.CATEGORY,
+              style: TextStyle(
+                color: theme.textTheme.bodySmall?.color,
+                fontSize: 11,
+              ),
             ),
             SizedBox(height: 6),
             Text(
-              "No categories",
-              style: TextStyle(fontSize: 14, color: Colors.grey),
+              AppStrings.NO_CATEGORIES,
+              style: TextStyle(
+                fontSize: 14,
+                color: theme.textTheme.bodySmall?.color,
+              ),
             ),
           ],
         ),
@@ -525,7 +650,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       child: Container(
         padding: EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.white10,
+          color: isDark ? Colors.white10 : Colors.grey.shade100,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: AppColors.primaryColor),
         ),
@@ -533,8 +658,11 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Category",
-              style: TextStyle(color: Colors.grey, fontSize: 11),
+              AppStrings.CATEGORY,
+              style: TextStyle(
+                color: theme.textTheme.bodySmall?.color,
+                fontSize: 11,
+              ),
             ),
             SizedBox(height: 6),
             Row(
@@ -546,8 +674,12 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 SizedBox(width: 6),
                 Expanded(
                   child: Text(
-                    selectedCategory?.name ?? "Category",
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                    selectedCategory?.name ?? AppStrings.CATEGORY,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: theme.textTheme.bodyLarge?.color,
+                    ),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -560,15 +692,18 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   }
 
   Widget _buildAmountField() {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "Amount",
+          AppStrings.AMOUNT,
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: Colors.white70,
+            color: theme.textTheme.bodyMedium?.color,
           ),
         ),
         SizedBox(height: 8),
@@ -578,22 +713,25 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: theme.textTheme.bodyLarge?.color,
           ),
           inputFormatters: [
             FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
           ],
           decoration: InputDecoration(
             hintText: "0.00",
-            hintStyle: TextStyle(color: Colors.grey, fontSize: 24),
+            hintStyle: TextStyle(
+              color: theme.textTheme.bodySmall?.color?.withOpacity(0.6),
+              fontSize: 24,
+            ),
             prefixText: PrefCurrencySymbol.rupee,
             prefixStyle: TextStyle(
-              color: Colors.white,
+              color: theme.textTheme.bodyLarge?.color,
               fontSize: 24,
               fontWeight: FontWeight.bold,
             ),
             filled: true,
-            fillColor: Colors.white10,
+            fillColor: isDark ? Colors.white10 : Colors.grey.shade100,
             contentPadding: EdgeInsets.all(16),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -614,6 +752,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   }
 
   Widget _buildDateTimeRow() {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Row(
       children: [
         Expanded(
@@ -621,11 +762,11 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Date",
+                AppStrings.DATE,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Colors.white70,
+                  color: theme.textTheme.bodyMedium?.color,
                 ),
               ),
               SizedBox(height: 8),
@@ -634,7 +775,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 child: Container(
                   padding: EdgeInsets.symmetric(vertical: 12, horizontal: 12),
                   decoration: BoxDecoration(
-                    color: Colors.white10,
+                    color: isDark ? Colors.white10 : Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: AppColors.primaryColor),
                   ),
@@ -642,13 +783,16 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                     children: [
                       Icon(
                         Icons.calendar_today,
-                        color: Colors.white70,
+                        color: theme.textTheme.bodyMedium?.color,
                         size: 16,
                       ),
                       SizedBox(width: 8),
                       Text(
                         "${_getMonthName(selectedDate.month)} ${selectedDate.day}, ${selectedDate.year}",
-                        style: TextStyle(fontSize: 13),
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: theme.textTheme.bodyLarge?.color,
+                        ),
                       ),
                     ],
                   ),
@@ -663,11 +807,11 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Time",
+                AppStrings.TIME,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Colors.white70,
+                  color: theme.textTheme.bodyMedium?.color,
                 ),
               ),
               SizedBox(height: 8),
@@ -676,17 +820,24 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 child: Container(
                   padding: EdgeInsets.symmetric(vertical: 12, horizontal: 12),
                   decoration: BoxDecoration(
-                    color: Colors.white10,
+                    color: isDark ? Colors.white10 : Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: AppColors.primaryColor),
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.access_time, color: Colors.white70, size: 16),
+                      Icon(
+                        Icons.access_time,
+                        color: theme.textTheme.bodyMedium?.color,
+                        size: 16,
+                      ),
                       SizedBox(width: 8),
                       Text(
                         "${selectedTime.hourOfPeriod == 0 ? 12 : selectedTime.hourOfPeriod}:${selectedTime.minute.toString().padLeft(2, '0')} ${selectedTime.period == DayPeriod.am ? 'AM' : 'PM'}",
-                        style: TextStyle(fontSize: 13),
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: theme.textTheme.bodyLarge?.color,
+                        ),
                       ),
                     ],
                   ),
@@ -718,36 +869,67 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   }
 
   void _showAccountPicker() {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.grey.shade900,
+      backgroundColor: isDark ? theme.cardColor : Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
+      isScrollControlled: true,
       builder: (context) {
         return Container(
-          padding: EdgeInsets.all(16),
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.7,
+          ),
+          padding: EdgeInsets.only(
+            top: 16,
+            left: 16,
+            right: 16,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                "Select Account",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                AppStrings.SELECT_ACCOUNT,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: theme.textTheme.titleLarge?.color,
+                ),
               ),
               SizedBox(height: 16),
-              ...accounts.map((account) {
-                return ListTile(
-                  leading: Text(account.icon, style: TextStyle(fontSize: 24)),
-                  title: Text(account.name),
-                  trailing: selectedAccount?.id == account.id
-                      ? Icon(Icons.check, color: AppColors.primaryColor)
-                      : null,
-                  onTap: () {
-                    setState(() => selectedAccount = account);
-                    Navigator.pop(context, true);
+              Flexible(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: accounts.length,
+                  itemBuilder: (context, index) {
+                    final account = accounts[index];
+                    return ListTile(
+                      leading: Text(
+                        account.icon,
+                        style: TextStyle(fontSize: 24),
+                      ),
+                      title: Text(
+                        account.name,
+                        style: TextStyle(
+                          color: theme.textTheme.bodyLarge?.color,
+                        ),
+                      ),
+                      trailing: selectedAccount?.id == account.id
+                          ? Icon(Icons.check, color: AppColors.primaryColor)
+                          : null,
+                      onTap: () {
+                        setState(() => selectedAccount = account);
+                        Navigator.pop(context, true);
+                      },
+                    );
                   },
-                );
-              }),
+                ),
+              ),
             ],
           ),
         );
@@ -756,36 +938,67 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   }
 
   void _showToAccountPicker() {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.grey.shade900,
+      backgroundColor: isDark ? theme.cardColor : Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
+      isScrollControlled: true,
       builder: (context) {
         return Container(
-          padding: EdgeInsets.all(16),
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.7,
+          ),
+          padding: EdgeInsets.only(
+            top: 16,
+            left: 16,
+            right: 16,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                "Select Destination Account",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                AppStrings.SELECT_DESTINATION_ACCOUNT,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: theme.textTheme.titleLarge?.color,
+                ),
               ),
               SizedBox(height: 16),
-              ...accounts.map((account) {
-                return ListTile(
-                  leading: Text(account.icon, style: TextStyle(fontSize: 24)),
-                  title: Text(account.name),
-                  trailing: selectedToAccount?.id == account.id
-                      ? Icon(Icons.check, color: AppColors.primaryColor)
-                      : null,
-                  onTap: () {
-                    setState(() => selectedToAccount = account);
-                    Navigator.pop(context);
+              Flexible(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: accounts.length,
+                  itemBuilder: (context, index) {
+                    final account = accounts[index];
+                    return ListTile(
+                      leading: Text(
+                        account.icon,
+                        style: TextStyle(fontSize: 24),
+                      ),
+                      title: Text(
+                        account.name,
+                        style: TextStyle(
+                          color: theme.textTheme.bodyLarge?.color,
+                        ),
+                      ),
+                      trailing: selectedToAccount?.id == account.id
+                          ? Icon(Icons.check, color: AppColors.primaryColor)
+                          : null,
+                      onTap: () {
+                        setState(() => selectedToAccount = account);
+                        Navigator.pop(context);
+                      },
+                    );
                   },
-                );
-              }),
+                ),
+              ),
             ],
           ),
         );
@@ -794,36 +1007,67 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   }
 
   void _showCategoryPicker() {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.grey.shade900,
+      backgroundColor: isDark ? theme.cardColor : Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
+      isScrollControlled: true,
       builder: (context) {
         return Container(
-          padding: EdgeInsets.all(16),
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.7,
+          ),
+          padding: EdgeInsets.only(
+            top: 16,
+            left: 16,
+            right: 16,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                "Select Category",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                AppStrings.SELECT_CATEGORY,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: theme.textTheme.titleLarge?.color,
+                ),
               ),
               SizedBox(height: 16),
-              ...categories.map((category) {
-                return ListTile(
-                  leading: Text(category.icon, style: TextStyle(fontSize: 24)),
-                  title: Text(category.name),
-                  trailing: selectedCategory?.id == category.id
-                      ? Icon(Icons.check, color: AppColors.primaryColor)
-                      : null,
-                  onTap: () {
-                    setState(() => selectedCategory = category);
-                    Navigator.pop(context);
+              Flexible(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: categories.length,
+                  itemBuilder: (context, index) {
+                    final category = categories[index];
+                    return ListTile(
+                      leading: Text(
+                        category.icon,
+                        style: TextStyle(fontSize: 24),
+                      ),
+                      title: Text(
+                        category.name,
+                        style: TextStyle(
+                          color: theme.textTheme.bodyLarge?.color,
+                        ),
+                      ),
+                      trailing: selectedCategory?.id == category.id
+                          ? Icon(Icons.check, color: AppColors.primaryColor)
+                          : null,
+                      onTap: () {
+                        setState(() => selectedCategory = category);
+                        Navigator.pop(context);
+                      },
+                    );
                   },
-                );
-              }),
+                ),
+              ),
             ],
           ),
         );

@@ -65,6 +65,7 @@ final ThemeData _darkTheme = ThemeData(
     secondary: Colors.tealAccent,
   ),
   scaffoldBackgroundColor: const Color(0xFF101414),
+  cardColor: Colors.grey.shade900,
   appBarTheme: const AppBarTheme(
     backgroundColor: Color(0xFF0E2222),
     elevation: 0,
@@ -86,6 +87,7 @@ final ThemeData _darkTheme = ThemeData(
     backgroundColor: Colors.teal,
     contentTextStyle: TextStyle(color: Colors.white),
   ),
+  dividerColor: Colors.grey.shade700,
 );
 
 final ThemeData _lightTheme = ThemeData(
@@ -94,6 +96,7 @@ final ThemeData _lightTheme = ThemeData(
     seedColor: Colors.teal,
     brightness: Brightness.light,
   ),
+  scaffoldBackgroundColor: Colors.grey.shade50,
   appBarTheme: const AppBarTheme(
     elevation: 0,
     backgroundColor: Colors.white,
@@ -104,4 +107,17 @@ final ThemeData _lightTheme = ThemeData(
       fontWeight: FontWeight.w600,
     ),
   ),
+  cardColor: Colors.white,
+  bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+    backgroundColor: Colors.white,
+    selectedItemColor: Colors.teal,
+    unselectedItemColor: Colors.grey,
+    type: BottomNavigationBarType.fixed,
+  ),
+  drawerTheme: const DrawerThemeData(backgroundColor: Colors.white),
+  snackBarTheme: SnackBarThemeData(
+    backgroundColor: Colors.teal.shade700,
+    contentTextStyle: const TextStyle(color: Colors.white),
+  ),
+  dividerColor: Colors.grey.shade300,
 );

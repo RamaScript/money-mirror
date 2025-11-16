@@ -2,7 +2,6 @@ class TransactionTable {
   static const String tableName = "transactions";
 
   static const String colId = "id";
-  static const String colTitle = "title";
   static const String colAmount = "amount";
   static const String colType = "type";
   static const String colAccountId = "account_id";
@@ -14,7 +13,6 @@ class TransactionTable {
       """
     CREATE TABLE $tableName (
       $colId INTEGER PRIMARY KEY AUTOINCREMENT,
-      $colTitle TEXT NOT NULL,
       $colAmount REAL NOT NULL,
       $colType TEXT NOT NULL,
       $colAccountId INTEGER NOT NULL,

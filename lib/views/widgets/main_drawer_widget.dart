@@ -8,40 +8,43 @@ class MainDrawerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Drawer(
       child: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildDrawerHeader(),
-            Divider(color: Colors.white70),
-            _buildDrawerItem(title: "Settings", icon: Icons.settings),
+            _buildDrawerHeader(theme),
+            Divider(color: theme.dividerColor),
+            _buildDrawerItem(title: "Settings", icon: Icons.settings, theme: theme),
             _buildThemeSection(context),
-            _buildListItemsDivider(),
-            _buildListItemsHeader(title: "Management"),
+            _buildListItemsDivider(theme),
+            _buildListItemsHeader(title: "Management", theme: theme),
             _buildDrawerItem(
               title: "Export Records ",
               icon: Icons.file_download,
+              theme: theme,
             ),
-            _buildDrawerItem(title: "Backup & Restore ", icon: Icons.backup),
+            _buildDrawerItem(title: "Backup & Restore ", icon: Icons.backup, theme: theme),
             _buildDrawerItem(
               title: "Delete and Reset ",
               icon: Icons.delete_forever,
+              theme: theme,
             ),
-            _buildListItemsDivider(),
-            _buildListItemsHeader(title: "Application"),
+            _buildListItemsDivider(theme),
+            _buildListItemsHeader(title: "Application", theme: theme),
 
-            _buildDrawerItem(title: "Pro Version ", icon: Icons.star),
-            _buildDrawerItem(title: "Like Money Mirror ", icon: Icons.favorite),
-            _buildDrawerItem(title: "Help ", icon: Icons.help),
-            _buildDrawerItem(title: "Feedback ", icon: Icons.feedback),
+            _buildDrawerItem(title: "Pro Version ", icon: Icons.star, theme: theme),
+            _buildDrawerItem(title: "Like Money Mirror ", icon: Icons.favorite, theme: theme),
+            _buildDrawerItem(title: "Help ", icon: Icons.help, theme: theme),
+            _buildDrawerItem(title: "Feedback ", icon: Icons.feedback, theme: theme),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildDrawerHeader() {
+  Widget _buildDrawerHeader(ThemeData theme) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       width: double.infinity,
@@ -53,8 +56,19 @@ class MainDrawerWidget extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Money Mirror", style: TextStyle(fontSize: 22)),
-              Text("1.0.0"),
+              Text(
+                "Money Mirror",
+                style: TextStyle(
+                  fontSize: 22,
+                  color: theme.textTheme.titleLarge?.color,
+                ),
+              ),
+              Text(
+                "1.0.0",
+                style: TextStyle(
+                  color: theme.textTheme.bodySmall?.color,
+                ),
+              ),
             ],
           ),
         ],
@@ -62,19 +76,38 @@ class MainDrawerWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildDrawerItem({required String title, required IconData icon}) {
-    return ListTile(leading: Icon(icon), title: Text(title));
-  }
-
-  Widget _buildListItemsHeader({required String title}) {
-    return Padding(
-      padding: EdgeInsets.only(left: 12),
-      child: Text(title, style: TextStyle(fontSize: 12)),
+  Widget _buildDrawerItem({
+    required String title,
+    required IconData icon,
+    required ThemeData theme,
+  }) {
+    return ListTile(
+      leading: Icon(icon, color: theme.iconTheme.color),
+      title: Text(
+        title,
+        style: TextStyle(color: theme.textTheme.bodyLarge?.color),
+      ),
     );
   }
 
-  Widget _buildListItemsDivider() {
-    return Divider(color: Colors.white30);
+  Widget _buildListItemsHeader({
+    required String title,
+    required ThemeData theme,
+  }) {
+    return Padding(
+      padding: EdgeInsets.only(left: 12),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 12,
+          color: theme.textTheme.bodySmall?.color,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildListItemsDivider(ThemeData theme) {
+    return Divider(color: theme.dividerColor);
   }
 
   Widget _buildThemeSection(BuildContext context) {

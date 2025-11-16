@@ -75,11 +75,6 @@ class _CreateBudgetDialogState extends State<CreateBudgetDialog> {
       return;
     }
 
-    if (amount > 10000000) {
-      SnackUtils.error(context, "Amount seems unrealistic. Please check. ");
-      return;
-    }
-
     // Check if budget already exists
     final exists = await BudgetDao.budgetExists(
       categoryId: selectedCategory!.id!,
@@ -300,11 +295,7 @@ class _CreateBudgetDialogState extends State<CreateBudgetDialog> {
                     keyboardType: TextInputType.numberWithOptions(
                       decimal: true,
                     ),
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(
-                        RegExp(r'^ d+ .? d{0,2}'),
-                      ),
-                    ],
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   ),
                   SizedBox(height: 8),
                   Row(
