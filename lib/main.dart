@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:money_mirror/core/utils/theme_mananger.dart';
 import 'package:money_mirror/database/database_seeder.dart';
 
 import 'app_routes.dart';
+
+// Global theme manager instance
+final themeManager = ThemeManager();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -11,18 +15,43 @@ void main() async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    themeManager.addListener(_onThemeChanged);
+  }
+
+  @override
+  void dispose() {
+    themeManager.removeListener(_onThemeChanged);
+    super.dispose();
+  }
+
+  void _onThemeChanged() {
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Money Mirror',
       debugShowCheckedModeBanner: false,
-      themeMode: ThemeMode.dark, // Force dark (you can make system later)
+      // themeMode: ThemeMode.dark, // Force dark (you can make system later)
+      themeMode: themeManager.themeMode,
+
       darkTheme: _darkTheme,
-      theme: _lightTheme, // Fallback
+      // theme: _lightTheme, // Fallback
       // home: MainScreen(),
+      theme: _lightTheme,
+
       onGenerateRoute: AppRoutes.generateRoute,
       initialRoute: AppRoutes.splash,
     );
