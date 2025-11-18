@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:money_mirror/core/utils/app_strings.dart';
 import 'package:money_mirror/database/dao/category_dao.dart';
 import 'package:money_mirror/models/category_model.dart';
+import 'package:money_mirror/views/widgets/category/category_transactions_bottom_sheet.dart';
 import 'package:money_mirror/views/widgets/category/create_category_dialog.dart';
 import 'package:money_mirror/views/widgets/category/edit_category_dialog.dart';
-import 'package:money_mirror/views/widgets/category_transactions_bottom_sheet.dart';
 
 class CategoriesScreen extends StatefulWidget {
   const CategoriesScreen({super.key});

@@ -3,9 +3,9 @@ import 'package:money_mirror/core/utils/pref_currency_symbol.dart';
 import 'package:money_mirror/database/dao/account_dao.dart';
 import 'package:money_mirror/database/dao/transaction_dao.dart';
 import 'package:money_mirror/models/account_model.dart';
+import 'package:money_mirror/views/widgets/account/account_transactions_bottom_sheet.dart';
 import 'package:money_mirror/views/widgets/account/create_account_dialog.dart';
 import 'package:money_mirror/views/widgets/account/edit_account_dialog.dart';
-import 'package:money_mirror/views/widgets/account_transactions_bottom_sheet.dart';
 
 class AccountsScreen extends StatefulWidget {
   const AccountsScreen({super.key});
@@ -16,6 +16,8 @@ class AccountsScreen extends StatefulWidget {
 
 class _AccountsScreenState extends State<AccountsScreen> {
   List<AccountModel> accounts = [];
+  Map<int, double> accountBalances =
+      {}; // Store current balance for each account
   double totalBalance = 0.0;
   double totalExpense = 0.0;
   double totalIncome = 0.0;
@@ -31,20 +33,37 @@ class _AccountsScreenState extends State<AccountsScreen> {
     setState(() => isLoading = true);
 
     final accountData = await AccountDao.getAccounts();
-    
-    // Calculate totals
+
+    // Calculate totals and individual account balances
     double balance = 0.0;
+    Map<int, double> balances = {};
+
     for (var account in accountData) {
-      balance += (account['initial_amount'] as num).toDouble();
+      final accountId = account['id'] as int;
+      final initialAmount = (account['initial_amount'] as num).toDouble();
+
+      // Get transactions for this specific account
+      final accountExpense = await TransactionDao.getTotalExpenseByAccount(
+        accountId,
+      );
+      final accountIncome = await TransactionDao.getTotalIncomeByAccount(
+        accountId,
+      );
+
+      // Calculate current balance for this account
+      final currentBalance = initialAmount - accountExpense + accountIncome;
+      balances[accountId] = currentBalance;
+      balance += currentBalance;
     }
 
-    // Get transaction totals
+    // Get total transaction amounts
     final expense = await TransactionDao.getTotalExpense();
     final income = await TransactionDao.getTotalIncome();
 
     setState(() {
       accounts = accountData.map((e) => AccountModel.fromMap(e)).toList();
-      totalBalance = balance - expense + income;
+      accountBalances = balances;
+      totalBalance = balance;
       totalExpense = expense;
       totalIncome = income;
       isLoading = false;
@@ -79,9 +98,7 @@ class _AccountsScreenState extends State<AccountsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text("Delete Account?"),
-        content: Text(
-          "Are you sure you want to delete ${account.name}?",
-        ),
+        content: Text("Are you sure you want to delete ${account.name}?"),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -110,10 +127,6 @@ class _AccountsScreenState extends State<AccountsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Accounts"),
-        leading: IconButton(
-          icon: const Icon(Icons.menu),
-          onPressed: () => Scaffold.of(context).openDrawer(),
-        ),
         actions: [
           IconButton(
             onPressed: _openAddAccountDialog,
@@ -123,7 +136,10 @@ class _AccountsScreenState extends State<AccountsScreen> {
       ),
       body: isLoading
           ? Center(
-              child: CircularProgressIndicator(color: theme.colorScheme.primary))
+              child: CircularProgressIndicator(
+                color: theme.colorScheme.primary,
+              ),
+            )
           : RefreshIndicator(
               onRefresh: loadAccounts,
               color: theme.colorScheme.primary,
@@ -255,13 +271,10 @@ class _AccountsScreenState extends State<AccountsScreen> {
     );
   }
 
-  Widget _buildAccountCard(
-    AccountModel account,
-    int index,
-    ThemeData theme,
-  ) {
-    final balance = account.initialAmount;
-    final isNegative = balance < 0;
+  Widget _buildAccountCard(AccountModel account, int index, ThemeData theme) {
+    // Get current balance from the map
+    final currentBalance = accountBalances[account.id] ?? account.initialAmount;
+    final isNegative = currentBalance < 0;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -301,7 +314,7 @@ class _AccountsScreenState extends State<AccountsScreen> {
                   ),
                 ),
                 const SizedBox(width: 16),
-                
+
                 // Details
                 Expanded(
                   child: Column(
@@ -317,28 +330,19 @@ class _AccountsScreenState extends State<AccountsScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        "Initial: ${PrefCurrencySymbol.rupee}${account.initialAmount.toStringAsFixed(2)}",
+                        "Balance: ${isNegative ? '-' : ''}${PrefCurrencySymbol.rupee}${currentBalance.abs().toStringAsFixed(2)}",
                         style: TextStyle(
-                          fontSize: 14,
-                          color: theme.textTheme.bodySmall?.color,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: isNegative ? Colors.red : Colors.green,
                         ),
                       ),
                     ],
                   ),
                 ),
-                
-                // Balance
-                Text(
-                  "${isNegative ? '-' : ''}${PrefCurrencySymbol.rupee}${balance.abs().toStringAsFixed(2)}",
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: isNegative ? Colors.red : Colors.green,
-                  ),
-                ),
-                
+
                 const SizedBox(width: 8),
-                
+
                 // Menu
                 PopupMenuButton(
                   icon: const Icon(Icons.more_vert),

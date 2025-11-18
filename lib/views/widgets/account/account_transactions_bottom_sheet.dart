@@ -5,24 +5,24 @@ import 'package:money_mirror/core/utils/app_strings.dart';
 import 'package:money_mirror/core/utils/pref_currency_symbol.dart';
 import 'package:money_mirror/core/utils/snack_utils.dart';
 import 'package:money_mirror/database/dao/transaction_dao.dart';
-import 'package:money_mirror/models/category_model.dart';
+import 'package:money_mirror/models/account_model.dart';
 import 'package:money_mirror/views/screens/add_transaction_screen.dart';
 import 'package:money_mirror/views/widgets/date_header.dart';
 import 'package:money_mirror/views/widgets/transaction_card.dart';
 
-class CategoryTransactionsBottomSheet extends StatelessWidget {
-  final CategoryModel category;
+class AccountTransactionsBottomSheet extends StatelessWidget {
+  final AccountModel account;
   final VoidCallback? onTransactionUpdated;
 
-  const CategoryTransactionsBottomSheet({
+  const AccountTransactionsBottomSheet({
     super.key,
-    required this.category,
+    required this.account,
     this.onTransactionUpdated,
   });
 
   static Future<void> show(
     BuildContext context,
-    CategoryModel category, {
+    AccountModel account, {
     VoidCallback? onTransactionUpdated,
   }) async {
     await showModalBottomSheet(
@@ -30,8 +30,8 @@ class CategoryTransactionsBottomSheet extends StatelessWidget {
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       enableDrag: true,
-      builder: (context) => CategoryTransactionsBottomSheet(
-        category: category,
+      builder: (context) => AccountTransactionsBottomSheet(
+        account: account,
         onTransactionUpdated: onTransactionUpdated,
       ),
     );
@@ -40,7 +40,7 @@ class CategoryTransactionsBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return DraggableScrollableSheet(
       initialChildSize: 0.95,
       minChildSize: 0.5,
@@ -66,48 +66,43 @@ class CategoryTransactionsBottomSheet extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      Text(
-                        category.icon,
-                        style: const TextStyle(fontSize: 24),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              category.name,
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: theme.textTheme.titleLarge?.color,
-                              ),
-                            ),
-                            FutureBuilder<int>(
-                              future: _getTransactionCount(),
-                              builder: (context, snapshot) {
-                                final count = snapshot.data ?? 0;
-                                return Text(
-                                  "$count transaction${count != 1 ? 's' : ''}",
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: theme.textTheme.bodySmall?.color,
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
+                  Text(account.icon, style: const TextStyle(fontSize: 24)),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          account.name,
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: theme.textTheme.titleLarge?.color,
+                          ),
                         ),
-                      ),
-                    ],
+                        FutureBuilder<int>(
+                          future: _getTransactionCount(),
+                          builder: (context, snapshot) {
+                            final count = snapshot.data ?? 0;
+                            return Text(
+                              "$count transaction${count != 1 ? 's' : ''}",
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: theme.textTheme.bodySmall?.color,
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                   IconButton(
                     onPressed: () => Navigator.pop(context),
-                    icon: Icon(Icons.close, color: theme.textTheme.bodyLarge?.color),
+                    icon: Icon(
+                      Icons.close,
+                      color: theme.textTheme.bodyLarge?.color,
+                    ),
                   ),
                 ],
               ),
@@ -150,7 +145,7 @@ class CategoryTransactionsBottomSheet extends StatelessWidget {
                   }
 
                   final transactions = snapshot.data ?? [];
-                  
+
                   if (transactions.isEmpty) {
                     return Center(
                       child: Column(
@@ -178,8 +173,14 @@ class CategoryTransactionsBottomSheet extends StatelessWidget {
                   final grouped = <DateTime, List<Map<String, dynamic>>>{};
                   for (var transaction in transactions) {
                     try {
-                      final date = DateTime.parse(transaction['date'].toString());
-                      final dateOnly = DateTime(date.year, date.month, date.day);
+                      final date = DateTime.parse(
+                        transaction['date'].toString(),
+                      );
+                      final dateOnly = DateTime(
+                        date.year,
+                        date.month,
+                        date.day,
+                      );
                       if (!grouped.containsKey(dateOnly)) {
                         grouped[dateOnly] = [];
                       }
@@ -189,8 +190,10 @@ class CategoryTransactionsBottomSheet extends StatelessWidget {
                     }
                   }
 
-                  final sortedDates = grouped.keys.toList()..sort((a, b) => b.compareTo(a));
-                  final sortedGrouped = <DateTime, List<Map<String, dynamic>>>{};
+                  final sortedDates = grouped.keys.toList()
+                    ..sort((a, b) => b.compareTo(a));
+                  final sortedGrouped =
+                      <DateTime, List<Map<String, dynamic>>>{};
                   for (var date in sortedDates) {
                     sortedGrouped[date] = grouped[date]!;
                   }
@@ -206,12 +209,17 @@ class CategoryTransactionsBottomSheet extends StatelessWidget {
                             DateHeader(date: entry.key),
                             ...entry.value.map((transaction) {
                               return Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
                                 child: TransactionCard(
                                   transaction: transaction,
                                   onTap: () {
                                     Navigator.pop(context);
-                                    _showTransactionDetails(context, transaction);
+                                    _showTransactionDetails(
+                                      context,
+                                      transaction,
+                                    );
                                   },
                                 ),
                               );
@@ -233,7 +241,7 @@ class CategoryTransactionsBottomSheet extends StatelessWidget {
   Future<List<Map<String, dynamic>>> _loadTransactions() async {
     final allTransactions = await TransactionDao.getAllTransactions();
     return allTransactions
-        .where((t) => (t['category_id'] as int?) == category.id)
+        .where((t) => (t['account_id'] as int?) == account.id)
         .toList();
   }
 
@@ -242,13 +250,16 @@ class CategoryTransactionsBottomSheet extends StatelessWidget {
     return transactions.length;
   }
 
-  void _showTransactionDetails(BuildContext context, Map<String, dynamic> transaction) {
+  void _showTransactionDetails(
+    BuildContext context,
+    Map<String, dynamic> transaction,
+  ) {
     final theme = Theme.of(context);
     final isIncome = transaction['type'] == AppStrings.INCOME;
     final isTransfer = transaction['type'] == AppStrings.TRANSFER;
     final amount = (transaction['amount'] as num).toDouble();
     final date = DateTime.parse(transaction['date'].toString());
-    
+
     Color typeColor;
     String typeLabel;
     if (isTransfer) {
@@ -285,7 +296,10 @@ class CategoryTransactionsBottomSheet extends StatelessWidget {
                 children: [
                   IconButton(
                     onPressed: () => Navigator.pop(context),
-                    icon: Icon(Icons.close, color: theme.textTheme.bodyLarge?.color),
+                    icon: Icon(
+                      Icons.close,
+                      color: theme.textTheme.bodyLarge?.color,
+                    ),
                   ),
                   Row(
                     children: [
@@ -310,7 +324,9 @@ class CategoryTransactionsBottomSheet extends StatelessWidget {
                       IconButton(
                         onPressed: () async {
                           Navigator.pop(context);
-                          await TransactionDao.deleteTransaction(transaction['id']);
+                          await TransactionDao.deleteTransaction(
+                            transaction['id'],
+                          );
                           onTransactionUpdated?.call();
                           if (context.mounted) {
                             SnackUtils.error(context, "Transaction deleted");
@@ -331,7 +347,10 @@ class CategoryTransactionsBottomSheet extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: typeColor.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
@@ -356,13 +375,26 @@ class CategoryTransactionsBottomSheet extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    _buildDetailRow(theme, "Date & Time", DateFormat('MMM dd, yyyy • hh:mm a').format(date)),
+                    _buildDetailRow(
+                      theme,
+                      "Date & Time",
+                      DateFormat('MMM dd, yyyy • hh:mm a').format(date),
+                    ),
                     const SizedBox(height: 16),
-                    _buildDetailRow(theme, "Account", transaction['account_name']?.toString() ?? 'Unknown'),
+                    _buildDetailRow(
+                      theme,
+                      "Account",
+                      transaction['account_name']?.toString() ?? 'Unknown',
+                    ),
                     const SizedBox(height: 16),
                     if (transaction['category_name'] != null)
-                      _buildDetailRow(theme, "Category", transaction['category_name'].toString()),
-                    if (transaction['note'] != null && transaction['note'].toString().isNotEmpty) ...[
+                      _buildDetailRow(
+                        theme,
+                        "Category",
+                        transaction['category_name'].toString(),
+                      ),
+                    if (transaction['note'] != null &&
+                        transaction['note'].toString().isNotEmpty) ...[
                       const SizedBox(height: 24),
                       const Divider(),
                       const SizedBox(height: 16),
@@ -422,4 +454,3 @@ class CategoryTransactionsBottomSheet extends StatelessWidget {
     );
   }
 }
-

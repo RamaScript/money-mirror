@@ -147,4 +147,22 @@ class TransactionDao {
     );
     return (result.first['total'] as num?)?.toDouble() ?? 0.0;
   }
+
+  static Future<double> getTotalExpenseByAccount(int accountId) async {
+    final db = await DBHandler().database;
+    final result = await db.rawQuery(
+      'SELECT SUM(amount) as total FROM transactions WHERE account_id = ? AND type = "expense"',
+      [accountId],
+    );
+    return (result.first['total'] as num?)?.toDouble() ?? 0.0;
+  }
+
+  static Future<double> getTotalIncomeByAccount(int accountId) async {
+    final db = await DBHandler().database;
+    final result = await db.rawQuery(
+      'SELECT SUM(amount) as total FROM transactions WHERE account_id = ? AND type = "income"',
+      [accountId],
+    );
+    return (result.first['total'] as num?)?.toDouble() ?? 0.0;
+  }
 }

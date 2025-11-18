@@ -1004,7 +1004,7 @@ class _AnalysisScreenState extends State<AnalysisScreen>
 
       return PieChartSectionData(
         value: value,
-        title: percentage > 8 ? '${percentage.toStringAsFixed(0)}%' : '',
+        title: percentage > 0 ? '${percentage.toStringAsFixed(0)}%' : '',
         color: color,
         radius: 100,
         titleStyle: TextStyle(
@@ -1015,17 +1015,17 @@ class _AnalysisScreenState extends State<AnalysisScreen>
             Shadow(color: Colors.black.withOpacity(0.3), blurRadius: 2),
           ],
         ),
-        badgeWidget: percentage <= 8
+        badgeWidget: percentage <= 100
             ? Container(
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(color: color, shape: BoxShape.circle),
                 child: Text(
                   data['category_icon'] ?? '💰',
-                  style: const TextStyle(fontSize: 12),
+                  style: const TextStyle(fontSize: 16),
                 ),
               )
             : null,
-        badgePositionPercentageOffset: 1.3,
+        badgePositionPercentageOffset: 1.2,
       );
     }).toList();
 
@@ -1101,12 +1101,12 @@ class _AnalysisScreenState extends State<AnalysisScreen>
                           child: Transform.scale(
                             scale: value,
                             child: SizedBox(
-                              height: 200,
+                              height: 300,
                               child: PieChart(
                                 PieChartData(
                                   sections: sections,
-                                  centerSpaceRadius: 40,
-                                  sectionsSpace: 2,
+                                  centerSpaceRadius: 20,
+                                  sectionsSpace: 1,
                                 ),
                               ),
                             ),
@@ -1115,90 +1115,90 @@ class _AnalysisScreenState extends State<AnalysisScreen>
                       },
                     ),
                     const SizedBox(height: 20),
-                    SizedBox(
-                      height: 250,
-                      child: SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: breakdown.asMap().entries.map((entry) {
-                            final index = entry.key;
-                            final data = entry.value;
-                            final color = colors[index % colors.length];
-                            final value = (data['total'] as num).toDouble();
-                            final percentage = (value / total) * 100;
-
-                            return Container(
-                              margin: const EdgeInsets.only(bottom: 12),
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: theme.cardColor.withOpacity(0.5),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: color.withOpacity(0.3),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Row(
-                                children: [
-                                  Text(
-                                    data['category_icon'] ?? '💰',
-                                    style: const TextStyle(fontSize: 20),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          data['category_name'] ?? 'Unknown',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w600,
-                                            color: theme
-                                                .textTheme
-                                                .bodyLarge
-                                                ?.color,
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(
-                                              "${PrefCurrencySymbol.rupee}${value.toStringAsFixed(2)}",
-                                              style: TextStyle(
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.bold,
-                                                color: theme
-                                                    .textTheme
-                                                    .titleLarge
-                                                    ?.color,
-                                              ),
-                                            ),
-                                            Text(
-                                              "${percentage.toStringAsFixed(1)}%",
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                color: color,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                      ),
-                    ),
+                    // SizedBox(
+                    //   height: 300,
+                    //   child: SingleChildScrollView(
+                    //     child: Column(
+                    //       crossAxisAlignment: CrossAxisAlignment.start,
+                    //       children: breakdown.asMap().entries.map((entry) {
+                    //         final index = entry.key;
+                    //         final data = entry.value;
+                    //         final color = colors[index % colors.length];
+                    //         final value = (data['total'] as num).toDouble();
+                    //         final percentage = (value / total) * 100;
+                    //
+                    //         return Container(
+                    //           margin: const EdgeInsets.only(bottom: 12),
+                    //           padding: const EdgeInsets.all(12),
+                    //           decoration: BoxDecoration(
+                    //             color: theme.cardColor.withOpacity(0.5),
+                    //             borderRadius: BorderRadius.circular(12),
+                    //             border: Border.all(
+                    //               color: color.withOpacity(0.3),
+                    //               width: 1,
+                    //             ),
+                    //           ),
+                    //           child: Row(
+                    //             children: [
+                    //               Text(
+                    //                 data['category_icon'] ?? '💰',
+                    //                 style: const TextStyle(fontSize: 20),
+                    //               ),
+                    //               const SizedBox(width: 12),
+                    //               Expanded(
+                    //                 child: Column(
+                    //                   crossAxisAlignment:
+                    //                       CrossAxisAlignment.start,
+                    //                   children: [
+                    //                     Text(
+                    //                       data['category_name'] ?? 'Unknown',
+                    //                       style: TextStyle(
+                    //                         fontSize: 14,
+                    //                         fontWeight: FontWeight.w600,
+                    //                         color: theme
+                    //                             .textTheme
+                    //                             .bodyLarge
+                    //                             ?.color,
+                    //                       ),
+                    //                       maxLines: 1,
+                    //                       overflow: TextOverflow.ellipsis,
+                    //                     ),
+                    //                     const SizedBox(height: 4),
+                    //                     Row(
+                    //                       mainAxisAlignment:
+                    //                           MainAxisAlignment.spaceBetween,
+                    //                       children: [
+                    //                         Text(
+                    //                           "${PrefCurrencySymbol.rupee}${value.toStringAsFixed(2)}",
+                    //                           style: TextStyle(
+                    //                             fontSize: 13,
+                    //                             fontWeight: FontWeight.bold,
+                    //                             color: theme
+                    //                                 .textTheme
+                    //                                 .titleLarge
+                    //                                 ?.color,
+                    //                           ),
+                    //                         ),
+                    //                         Text(
+                    //                           "${percentage.toStringAsFixed(1)}%",
+                    //                           style: TextStyle(
+                    //                             fontSize: 12,
+                    //                             color: color,
+                    //                             fontWeight: FontWeight.w600,
+                    //                           ),
+                    //                         ),
+                    //                       ],
+                    //                     ),
+                    //                   ],
+                    //                 ),
+                    //               ),
+                    //             ],
+                    //           ),
+                    //         );
+                    //       }).toList(),
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 );
               } else {
