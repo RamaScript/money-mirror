@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:money_mirror/views/screens/accounts_screen.dart';
 import 'package:money_mirror/views/screens/add_transaction_screen.dart';
-import 'package:money_mirror/views/screens/analysis_screen.dart';
+import 'package:money_mirror/views/screens/analysis/analysis_screen.dart';
 import 'package:money_mirror/views/screens/budget_screen.dart';
 import 'package:money_mirror/views/screens/categories_screen.dart';
 import 'package:money_mirror/views/screens/home_screen.dart';

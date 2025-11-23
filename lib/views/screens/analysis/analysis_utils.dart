@@ -14,6 +14,7 @@ class AnalysisUtils {
       WHERE type = 'INCOME'
         AND date >= ?
         AND date <= ?
+        AND type != 'TRANSFER'
     ''',
       [startDate.toIso8601String(), endDate.toIso8601String()],
     );
@@ -34,6 +35,7 @@ class AnalysisUtils {
       WHERE type = 'EXPENSE'
         AND date >= ?
         AND date <= ?
+        AND type != 'TRANSFER'
     ''',
       [startDate.toIso8601String(), endDate.toIso8601String()],
     );
@@ -61,6 +63,7 @@ class AnalysisUtils {
       WHERE t.type = ?
         AND t.date >= ?
         AND t.date <= ?
+        AND t.type != 'TRANSFER'
       GROUP BY t.category_id
       ORDER BY total DESC
     ''',
@@ -84,6 +87,7 @@ class AnalysisUtils {
       WHERE type = ?
         AND date >= ?
         AND date <= ?
+        AND type != 'TRANSFER'
       GROUP BY DATE(date)
       ORDER BY date ASC
     ''',
@@ -114,6 +118,7 @@ class AnalysisUtils {
       SELECT COUNT(*) as count 
       FROM transactions 
       WHERE date >= ? AND date <= ?
+      AND type != 'TRANSFER'
     ''',
       [startDate.toIso8601String(), endDate.toIso8601String()],
     );
@@ -216,6 +221,7 @@ class AnalysisUtils {
       SELECT COUNT(*) as count 
       FROM transactions 
       WHERE type = 'INCOME' AND date >= ? AND date <= ?
+      AND type != 'TRANSFER'
     ''',
       [startDate.toIso8601String(), endDate.toIso8601String()],
     );
@@ -225,6 +231,7 @@ class AnalysisUtils {
       SELECT COUNT(*) as count 
       FROM transactions 
       WHERE type = 'EXPENSE' AND date >= ? AND date <= ?
+      AND type != 'TRANSFER'
     ''',
       [startDate.toIso8601String(), endDate.toIso8601String()],
     );
@@ -266,6 +273,7 @@ class AnalysisUtils {
       FROM transactions t
       LEFT JOIN accounts a ON t.account_id = a.id
       WHERE t.date >= ? AND t.date <= ?
+      AND t.type != 'TRANSFER'
       GROUP BY t.account_id
       ORDER BY a.name ASC
     ''',
@@ -287,6 +295,7 @@ class AnalysisUtils {
       FROM transactions
       WHERE type = 'INCOME'
         AND date >= ? AND date <= ?
+        AND type != 'TRANSFER'
       GROUP BY DATE(date)
       ORDER BY date ASC
     ''',
