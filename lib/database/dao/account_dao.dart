@@ -4,7 +4,35 @@ import 'package:money_mirror/database/schema/account_table.dart';
 class AccountDao {
   static Future<int> insertAccount(Map<String, dynamic> data) async {
     final db = await DBHandler().database;
+
+    // If icon is null or empty → set default
+    data[AccountTable.colIcon] ??= '🏦';
+
+    // If someone passes "" (empty string), also fix it
+    if ((data[AccountTable.colIcon] as String).trim().isEmpty) {
+      data[AccountTable.colIcon] = '🏦';
+    }
+
     return await db.insert(AccountTable.tableName, data);
+  }
+
+  static Future<int> getOrCreate(String name) async {
+    final db = await DBHandler().database;
+
+    final res = await db.query(
+      AccountTable.tableName,
+      where: "${AccountTable.colName} = ?",
+      whereArgs: [name],
+      limit: 1,
+    );
+
+    if (res.isNotEmpty) return res.first["id"] as int;
+
+    return await db.insert(AccountTable.tableName, {
+      AccountTable.colName: name,
+      AccountTable.colIcon: '🏦',
+      AccountTable.colInitialAmount: 0.0,
+    });
   }
 
   static Future<List<Map<String, dynamic>>> getAccounts() async {

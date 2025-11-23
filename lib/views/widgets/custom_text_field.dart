@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:money_mirror/core/utils/app_colors.dart';
 
 class CustomTextField extends StatefulWidget {
   final TextEditingController controller;
@@ -68,16 +69,17 @@ class _CustomTextFieldState extends State<CustomTextField> {
 
   @override
   Widget build(BuildContext context) {
-    final defaultBorderColor = widget.borderColor ?? Colors.grey;
-    final defaultFocusedBorderColor = widget.focusedBorderColor ?? Colors.blue;
-    final defaultHintTextColor = widget.hintTextColor ?? Colors.grey.shade400;
-    final defaultTitleTextColor = widget.titleTextColor ?? Colors.grey[800];
-    final defaultInputTextColor = widget.inputTextColor ?? Colors.black87;
-    final defaultCursorColor = widget.cursorColor ?? Colors.grey.shade700;
-    final defaultLeadingIconColor = widget.leadingIconColor ?? Colors.grey;
+    final defaultBorderColor = widget.borderColor ?? AppColors.grey;
+    final defaultFocusedBorderColor =
+        widget.focusedBorderColor ?? AppColors.transferColor;
+    final defaultHintTextColor = widget.hintTextColor ?? AppColors.grey400;
+    final defaultTitleTextColor = widget.titleTextColor ?? AppColors.grey800;
+    final defaultInputTextColor = widget.inputTextColor ?? AppColors.black87;
+    final defaultCursorColor = widget.cursorColor ?? AppColors.grey700;
+    final defaultLeadingIconColor = widget.leadingIconColor ?? AppColors.grey;
     final defaultTrailingIconColor =
-        widget.trailingIconColor ?? Colors.grey.shade400;
-    final defaultBackgroundColor = widget.backgroundColor ?? Colors.white;
+        widget.trailingIconColor ?? AppColors.grey400;
+    final defaultBackgroundColor = widget.backgroundColor ?? AppColors.white;
 
     final enabledBorder = OutlineInputBorder(
       borderSide: BorderSide(color: defaultBorderColor, width: 1),
@@ -144,7 +146,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
             focusedBorder: focusedBorder,
             hintText: widget.placeHolder,
             hintStyle: TextStyle(color: defaultHintTextColor),
-            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+            contentPadding:
+                EdgeInsets.symmetric(horizontal: 12, vertical: 16),
             prefixIcon: prefixIcon,
             suffixIcon: suffixIcon,
           ),
@@ -155,7 +158,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
 
   bool _isEmoji(String input) {
     final emojiRegex = RegExp(
-      r'^[\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}]$',
+      r'^[\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}]＄',
       unicode: true,
     );
     return emojiRegex.hasMatch(input);

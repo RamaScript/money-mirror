@@ -136,7 +136,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                         items: expenseCategories,
                       ),
                     if (incomeCategories.isEmpty && expenseCategories.isEmpty)
-                      _buildEmptyState(theme),
+                      Center(child: _buildEmptyState(theme)),
                     const SizedBox(height: 16),
                   ],
                 ),
@@ -197,7 +197,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
           onTap: () => _showCategoryTransactions(category),
           borderRadius: BorderRadius.circular(16),
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(8),
             child: Row(
               children: [
                 // Icon
@@ -211,7 +211,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                   child: Center(
                     child: Text(
                       category.icon,
-                      style: const TextStyle(fontSize: 28),
+                      style: const TextStyle(fontSize: 24),
                     ),
                   ),
                 ),
@@ -220,9 +220,9 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                 // Name
                 Expanded(
                   child: Text(
-                    "$index. ${category.name}",
+                    category.name,
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: theme.textTheme.titleLarge?.color,
                     ),

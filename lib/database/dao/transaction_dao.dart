@@ -148,21 +148,35 @@ class TransactionDao {
     return (result.first['total'] as num?)?.toDouble() ?? 0.0;
   }
 
-  static Future<double> getTotalExpenseByAccount(int accountId) async {
+  // Get total expense grouped by account in 1 query
+  static Future<Map<int, double>> getExpensesGrouped() async {
     final db = await DBHandler().database;
-    final result = await db.rawQuery(
-      'SELECT SUM(amount) as total FROM transactions WHERE account_id = ? AND type = "expense"',
-      [accountId],
-    );
-    return (result.first['total'] as num?)?.toDouble() ?? 0.0;
+    final result = await db.rawQuery('''
+      SELECT account_id, SUM(amount) as total 
+      FROM ${TransactionTable.tableName}
+      WHERE type = 'EXPENSE'
+      GROUP BY account_id
+    ''');
+
+    return {
+      for (var row in result)
+        row['account_id'] as int: (row['total'] as num?)?.toDouble() ?? 0.0,
+    };
   }
 
-  static Future<double> getTotalIncomeByAccount(int accountId) async {
+  // Get total income grouped by account in 1 query
+  static Future<Map<int, double>> getIncomeGrouped() async {
     final db = await DBHandler().database;
-    final result = await db.rawQuery(
-      'SELECT SUM(amount) as total FROM transactions WHERE account_id = ? AND type = "income"',
-      [accountId],
-    );
-    return (result.first['total'] as num?)?.toDouble() ?? 0.0;
+    final result = await db.rawQuery('''
+      SELECT account_id, SUM(amount) as total 
+      FROM ${TransactionTable.tableName}
+      WHERE type = 'INCOME'
+      GROUP BY account_id
+    ''');
+
+    return {
+      for (var row in result)
+        row['account_id'] as int: (row['total'] as num?)?.toDouble() ?? 0.0,
+    };
   }
 }

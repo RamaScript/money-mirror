@@ -7,6 +7,25 @@ class CategoryDao {
     return await db.insert(CategoryTable.tableName, data);
   }
 
+  static Future<int> getOrCreate(String name, {String type = "OTHERS"}) async {
+    final db = await DBHandler().database;
+
+    final res = await db.query(
+      CategoryTable.tableName,
+      where: "${CategoryTable.colName} = ? AND ${CategoryTable.colType} = ?",
+      whereArgs: [name, type],
+      limit: 1,
+    );
+
+    if (res.isNotEmpty) return res.first["id"] as int;
+
+    return await db.insert(CategoryTable.tableName, {
+      CategoryTable.colName: name,
+      CategoryTable.colIcon: type == "INCOME" ? '💵' : '💸',
+      CategoryTable.colType: type, // or default type
+    });
+  }
+
   static Future<List<Map<String, dynamic>>> getCategories({
     String? type,
   }) async {

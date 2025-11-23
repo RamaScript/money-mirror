@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:money_mirror/app_routes.dart';
 import 'package:money_mirror/core/utils/app_colors.dart';
 import 'package:money_mirror/core/utils/image_paths.dart';
 import 'package:money_mirror/main.dart';
@@ -16,28 +17,67 @@ class MainDrawerWidget extends StatelessWidget {
           children: [
             _buildDrawerHeader(theme),
             Divider(color: theme.dividerColor),
-            _buildDrawerItem(title: "Settings", icon: Icons.settings, theme: theme),
+            _buildDrawerItem(
+              title: "Settings",
+              icon: Icons.settings,
+              theme: theme,
+              onTap: () => {},
+            ),
             _buildThemeSection(context),
             _buildListItemsDivider(theme),
             _buildListItemsHeader(title: "Management", theme: theme),
             _buildDrawerItem(
+              title: "Import Records ",
+              icon: Icons.upload,
+              theme: theme,
+              onTap: () =>
+                  Navigator.pushNamed(context, AppRoutes.importCsvScreen),
+            ),
+            _buildDrawerItem(
               title: "Export Records ",
               icon: Icons.file_download,
               theme: theme,
+              onTap: () => {},
             ),
-            _buildDrawerItem(title: "Backup & Restore ", icon: Icons.backup, theme: theme),
+            _buildDrawerItem(
+              title: "Backup & Restore ",
+              icon: Icons.backup,
+              theme: theme,
+              onTap: () => {},
+            ),
             _buildDrawerItem(
               title: "Delete and Reset ",
               icon: Icons.delete_forever,
               theme: theme,
+              onTap: () => {},
             ),
             _buildListItemsDivider(theme),
             _buildListItemsHeader(title: "Application", theme: theme),
 
-            _buildDrawerItem(title: "Pro Version ", icon: Icons.star, theme: theme),
-            _buildDrawerItem(title: "Like Money Mirror ", icon: Icons.favorite, theme: theme),
-            _buildDrawerItem(title: "Help ", icon: Icons.help, theme: theme),
-            _buildDrawerItem(title: "Feedback ", icon: Icons.feedback, theme: theme),
+            _buildDrawerItem(
+              title: "Pro Version ",
+              icon: Icons.star,
+              theme: theme,
+              onTap: () => {},
+            ),
+            _buildDrawerItem(
+              title: "Like Money Mirror ",
+              icon: Icons.favorite,
+              theme: theme,
+              onTap: () => {},
+            ),
+            _buildDrawerItem(
+              title: "Help ",
+              icon: Icons.help,
+              theme: theme,
+              onTap: () => {},
+            ),
+            _buildDrawerItem(
+              title: "Feedback ",
+              icon: Icons.feedback,
+              theme: theme,
+              onTap: () => {},
+            ),
           ],
         ),
       ),
@@ -65,9 +105,7 @@ class MainDrawerWidget extends StatelessWidget {
               ),
               Text(
                 "1.0.0",
-                style: TextStyle(
-                  color: theme.textTheme.bodySmall?.color,
-                ),
+                style: TextStyle(color: theme.textTheme.bodySmall?.color),
               ),
             ],
           ),
@@ -80,12 +118,16 @@ class MainDrawerWidget extends StatelessWidget {
     required String title,
     required IconData icon,
     required ThemeData theme,
+    required VoidCallback onTap,
   }) {
-    return ListTile(
-      leading: Icon(icon, color: theme.iconTheme.color),
-      title: Text(
-        title,
-        style: TextStyle(color: theme.textTheme.bodyLarge?.color),
+    return InkWell(
+      onTap: onTap,
+      child: ListTile(
+        leading: Icon(icon, color: theme.iconTheme.color),
+        title: Text(
+          title,
+          style: TextStyle(color: theme.textTheme.bodyLarge?.color),
+        ),
       ),
     );
   }
@@ -98,10 +140,7 @@ class MainDrawerWidget extends StatelessWidget {
       padding: EdgeInsets.only(left: 12),
       child: Text(
         title,
-        style: TextStyle(
-          fontSize: 12,
-          color: theme.textTheme.bodySmall?.color,
-        ),
+        style: TextStyle(fontSize: 12, color: theme.textTheme.bodySmall?.color),
       ),
     );
   }

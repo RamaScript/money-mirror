@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:money_mirror/core/utils/app_colors.dart';
 import 'package:money_mirror/core/utils/theme_mananger.dart';
-import 'package:money_mirror/database/database_seeder.dart';
 
 import 'app_routes.dart';
 
@@ -11,7 +11,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Seed database with default data on first launch
-  await DatabaseSeeder.seedIfNeeded();
+  // await DatabaseSeeder.seedIfNeeded();
   runApp(const MyApp());
 }
 
@@ -61,63 +61,63 @@ class _MyAppState extends State<MyApp> {
 final ThemeData _darkTheme = ThemeData(
   brightness: Brightness.dark,
   colorScheme: ColorScheme.dark(
-    primary: Colors.teal,
-    secondary: Colors.tealAccent,
+    primary: AppColors.primaryColor,
+    secondary: AppColors.secondryColor,
   ),
-  scaffoldBackgroundColor: const Color(0xFF101414),
-  cardColor: Colors.grey.shade900,
+  scaffoldBackgroundColor: AppColors.darkScaffold,
+  cardColor: AppColors.grey900,
   appBarTheme: const AppBarTheme(
-    backgroundColor: Color(0xFF0E2222),
+    backgroundColor: AppColors.darkAppBar,
     elevation: 0,
     titleTextStyle: TextStyle(
-      color: Colors.white,
+      color: AppColors.white,
       fontSize: 18,
       fontWeight: FontWeight.w600,
     ),
-    iconTheme: IconThemeData(color: Colors.white),
+    iconTheme: IconThemeData(color: AppColors.white),
   ),
   bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-    backgroundColor: Color(0xFF0E2222),
-    selectedItemColor: Colors.tealAccent,
-    unselectedItemColor: Colors.grey,
+    backgroundColor: AppColors.darkAppBar,
+    selectedItemColor: AppColors.secondryColor,
+    unselectedItemColor: AppColors.grey,
     type: BottomNavigationBarType.fixed,
   ),
-  drawerTheme: const DrawerThemeData(backgroundColor: Color(0xFF0E2222)),
+  drawerTheme: const DrawerThemeData(backgroundColor: AppColors.darkAppBar),
   snackBarTheme: const SnackBarThemeData(
-    backgroundColor: Colors.teal,
-    contentTextStyle: TextStyle(color: Colors.white),
+    backgroundColor: AppColors.primaryColor,
+    contentTextStyle: TextStyle(color: AppColors.white),
   ),
-  dividerColor: Colors.grey.shade700,
+  dividerColor: AppColors.grey700,
 );
 
 final ThemeData _lightTheme = ThemeData(
   brightness: Brightness.light,
   colorScheme: ColorScheme.fromSeed(
-    seedColor: Colors.teal,
+    seedColor: AppColors.primaryColor,
     brightness: Brightness.light,
   ),
-  scaffoldBackgroundColor: Colors.grey.shade50,
+  scaffoldBackgroundColor: AppColors.grey50,
   appBarTheme: const AppBarTheme(
     elevation: 0,
-    backgroundColor: Colors.white,
-    iconTheme: IconThemeData(color: Colors.black87),
+    backgroundColor: AppColors.white,
+    iconTheme: IconThemeData(color: AppColors.black87),
     titleTextStyle: TextStyle(
-      color: Colors.black87,
+      color: AppColors.black87,
       fontSize: 18,
       fontWeight: FontWeight.w600,
     ),
   ),
-  cardColor: Colors.white,
+  cardColor: AppColors.white,
   bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-    backgroundColor: Colors.white,
-    selectedItemColor: Colors.teal,
-    unselectedItemColor: Colors.grey,
+    backgroundColor: AppColors.white,
+    selectedItemColor: AppColors.primaryColor,
+    unselectedItemColor: AppColors.grey,
     type: BottomNavigationBarType.fixed,
   ),
-  drawerTheme: const DrawerThemeData(backgroundColor: Colors.white),
+  drawerTheme: const DrawerThemeData(backgroundColor: AppColors.white),
   snackBarTheme: SnackBarThemeData(
-    backgroundColor: Colors.teal.shade700,
-    contentTextStyle: const TextStyle(color: Colors.white),
+    backgroundColor: AppColors.teal700,
+    contentTextStyle: const TextStyle(color: AppColors.white),
   ),
-  dividerColor: Colors.grey.shade300,
+  dividerColor: AppColors.grey300,
 );

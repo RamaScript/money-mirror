@@ -62,7 +62,7 @@ class _EditBudgetDialogState extends State<EditBudgetDialog> {
       }
     } catch (e) {
       if (mounted) {
-        SnackUtils.error(context, "Failed to update budget: $e ");
+        SnackUtils.error(context, "Failed to update budget: \$e ");
       }
     } finally {
       if (mounted) {
@@ -79,8 +79,8 @@ class _EditBudgetDialogState extends State<EditBudgetDialog> {
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       backgroundColor: Theme.of(context).brightness == Brightness.dark
-          ? Colors.grey.shade900
-          : Colors.white,
+          ? AppColors.grey900
+          : AppColors.white,
       insetPadding: EdgeInsets.symmetric(horizontal: 18),
       contentPadding: EdgeInsets.all(20),
       content: SingleChildScrollView(
@@ -123,13 +123,13 @@ class _EditBudgetDialogState extends State<EditBudgetDialog> {
               controller: amountCtrl,
               label: "Budget Amount ",
               showTitle: true,
-              titleTextColor: Colors.grey,
+              titleTextColor: AppColors.grey,
               backgroundColor: Theme.of(context).brightness == Brightness.dark
-                  ? Colors.white10
-                  : Colors.grey.shade100,
+                  ? AppColors.white10
+                  : AppColors.grey100,
               inputTextColor: Theme.of(context).brightness == Brightness.dark
-                  ? Colors.white
-                  : Colors.black87,
+                  ? AppColors.white
+                  : AppColors.black87,
               borderColor: AppColors.primaryColor,
               focusedBorderColor: AppColors.secondryColor,
               placeHolder: "Enter amount ",
@@ -142,7 +142,7 @@ class _EditBudgetDialogState extends State<EditBudgetDialog> {
       actions: [
         TextButton(
           onPressed: isSaving ? null : () => Navigator.pop(context),
-          child: Text("Cancel ", style: TextStyle(color: Colors.grey)),
+          child: Text("Cancel ", style: TextStyle(color: AppColors.grey)),
         ),
         ElevatedButton(
           style: ElevatedButton.styleFrom(
@@ -160,7 +160,7 @@ class _EditBudgetDialogState extends State<EditBudgetDialog> {
                   height: 20,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: Colors.white,
+                    color: AppColors.white,
                   ),
                 )
               : Text(
@@ -168,7 +168,7 @@ class _EditBudgetDialogState extends State<EditBudgetDialog> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: AppColors.white,
                   ),
                 ),
         ),

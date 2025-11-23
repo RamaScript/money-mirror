@@ -545,7 +545,7 @@ class _HomeScreenState extends State<HomeScreen>
             AppStrings.TOTAL_BALANCE,
             style: TextStyle(
               fontSize: 16,
-              color: Colors.white.withOpacity(0.9),
+              color: AppColors.white.withOpacity(0.9),
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -554,7 +554,7 @@ class _HomeScreenState extends State<HomeScreen>
             PrefCurrencySymbol.rupee + balance.toStringAsFixed(2),
             style: const TextStyle(
               fontSize: 36,
-              color: Colors.white,
+              color: AppColors.white,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -594,7 +594,7 @@ class _HomeScreenState extends State<HomeScreen>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
+        color: AppColors.white.withOpacity(0.2),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -608,7 +608,7 @@ class _HomeScreenState extends State<HomeScreen>
                 label,
                 style: TextStyle(
                   fontSize: 14,
-                  color: Colors.white.withOpacity(0.9),
+                  color: AppColors.white.withOpacity(0.9),
                 ),
               ),
             ],
@@ -618,7 +618,7 @@ class _HomeScreenState extends State<HomeScreen>
             PrefCurrencySymbol.rupee + amount.toStringAsFixed(2),
             style: const TextStyle(
               fontSize: 18,
-              color: Colors.white,
+              color: AppColors.white,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -738,7 +738,7 @@ class _HomeScreenState extends State<HomeScreen>
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.transparent,
       isScrollControlled: true,
       builder: (context) => Container(
         constraints: BoxConstraints(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:money_mirror/core/utils/app_colors.dart';
 
 class SnackUtils {
   static void show(
@@ -19,7 +20,7 @@ class SnackUtils {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: AppColors.transparent,
         elevation: 0,
         behavior: SnackBarBehavior.fixed,
         padding: EdgeInsets.only(left: 16, right: 16, bottom: 8),
@@ -35,20 +36,20 @@ class SnackUtils {
               children: [
                 Row(
                   children: [
-                    Icon(icon, color: Colors.white), // ⬅ ICON HERE
+                    Icon(icon, color: AppColors.white), // ⬅ ICON HERE
                     const SizedBox(width: 10),
 
                     Expanded(
                       child: Text(
                         message,
-                        style: TextStyle(color: Colors.white, fontSize: 16),
+                        style: TextStyle(color: AppColors.white, fontSize: 16),
                       ),
                     ),
 
                     GestureDetector(
                       onTap: () =>
                           ScaffoldMessenger.of(context).hideCurrentSnackBar(),
-                      child: Icon(Icons.close, color: Colors.white),
+                      child: Icon(Icons.close, color: AppColors.white),
                     ),
                   ],
                 ),
@@ -60,7 +61,7 @@ class SnackUtils {
                   builder: (context, child) {
                     return LinearProgressIndicator(
                       value: animation.value,
-                      color: Colors.white,
+                      color: AppColors.white,
                       backgroundColor: background.withOpacity(0.3),
                       minHeight: 3,
                     );
@@ -79,28 +80,28 @@ class SnackUtils {
   static void success(BuildContext context, String msg) => show(
     context,
     message: msg,
-    background: Colors.green.shade600,
+    background: AppColors.green600,
     icon: Icons.check_circle, // ✔ Success icon
   );
 
   static void error(BuildContext context, String msg) => show(
     context,
     message: msg,
-    background: Colors.red.shade700,
+    background: AppColors.red700,
     icon: Icons.error, // ❌ Error icon
   );
 
   static void warning(BuildContext context, String msg) => show(
     context,
     message: msg,
-    background: Colors.orange.shade700,
+    background: AppColors.orange700,
     icon: Icons.warning_amber, // ⚠ Warning icon
   );
 
   static void info(BuildContext context, String msg) => show(
     context,
     message: msg,
-    background: Colors.blue.shade600,
+    background: AppColors.blue600,
     icon: Icons.info, // ℹ Info icon
   );
 }
