@@ -27,6 +27,23 @@ class DBHandler {
     );
   }
 
+  Future<void> deleteAndReset() async {
+    final dbPath = await getDatabasesPath();
+    final path = join(dbPath, "money_mirror.db");
+
+    // Close the database if it's open
+    if (_db != null && _db!.isOpen) {
+      await _db!.close();
+      _db = null;
+    }
+
+    // Delete the database file
+    await deleteDatabase(path);
+
+    // Re-initialize the database
+    _db = await initDB();
+  }
+
   Future<void> _createTables(Database db, int version) async {
     await db.execute(CategoryTable.createTable);
     await db.execute(AccountTable.createTable);

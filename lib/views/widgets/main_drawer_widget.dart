@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:money_mirror/app_routes.dart';
 import 'package:money_mirror/core/utils/app_colors.dart';
 import 'package:money_mirror/core/utils/image_paths.dart';
+import 'package:money_mirror/database/db_handler.dart';
 import 'package:money_mirror/main.dart';
 
 class MainDrawerWidget extends StatelessWidget {
@@ -16,13 +17,15 @@ class MainDrawerWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildDrawerHeader(theme),
-            Divider(color: theme.dividerColor),
-            _buildDrawerItem(
-              title: "Settings",
-              icon: Icons.settings,
-              theme: theme,
-              onTap: () => {},
-            ),
+            // Divider(color: theme.dividerColor),
+            // _buildDrawerItem(
+            //   title: "Settings",
+            //   icon: Icons.settings,
+            //   theme: theme,
+            //   onTap: () => {
+            //     Navigator.pushNamed(context, AppRoutes.settingsScreen),
+            //   },
+            // ),
             _buildThemeSection(context),
             _buildListItemsDivider(theme),
             _buildListItemsHeader(title: "Management", theme: theme),
@@ -33,39 +36,39 @@ class MainDrawerWidget extends StatelessWidget {
               onTap: () =>
                   Navigator.pushNamed(context, AppRoutes.importCsvScreen),
             ),
-            _buildDrawerItem(
-              title: "Export Records ",
-              icon: Icons.file_download,
-              theme: theme,
-              onTap: () => {},
-            ),
-            _buildDrawerItem(
-              title: "Backup & Restore ",
-              icon: Icons.backup,
-              theme: theme,
-              onTap: () => {},
-            ),
+            // _buildDrawerItem(
+            //   title: "Export Records ",
+            //   icon: Icons.file_download,
+            //   theme: theme,
+            //   onTap: () => {},
+            // ),
+            // _buildDrawerItem(
+            //   title: "Backup & Restore ",
+            //   icon: Icons.backup,
+            //   theme: theme,
+            //   onTap: () => {},
+            // ),
             _buildDrawerItem(
               title: "Delete and Reset ",
               icon: Icons.delete_forever,
               theme: theme,
-              onTap: () => {},
+              onTap: () => _showDeleteConfirmationDialog(context),
             ),
             _buildListItemsDivider(theme),
             _buildListItemsHeader(title: "Application", theme: theme),
 
-            _buildDrawerItem(
-              title: "Pro Version ",
-              icon: Icons.star,
-              theme: theme,
-              onTap: () => {},
-            ),
-            _buildDrawerItem(
-              title: "Like Money Mirror ",
-              icon: Icons.favorite,
-              theme: theme,
-              onTap: () => {},
-            ),
+            // _buildDrawerItem(
+            //   title: "Pro Version ",
+            //   icon: Icons.star,
+            //   theme: theme,
+            //   onTap: () => {},
+            // ),
+            // _buildDrawerItem(
+            //   title: "Like Money Mirror ",
+            //   icon: Icons.favorite,
+            //   theme: theme,
+            //   onTap: () => {},
+            // ),
             _buildDrawerItem(
               title: "Demo ",
               icon: Icons.slideshow,
@@ -75,18 +78,18 @@ class MainDrawerWidget extends StatelessWidget {
                 Navigator.pushNamed(context, AppRoutes.onboarding);
               },
             ),
-            _buildDrawerItem(
-              title: "Help ",
-              icon: Icons.help,
-              theme: theme,
-              onTap: () => {},
-            ),
-            _buildDrawerItem(
-              title: "Feedback ",
-              icon: Icons.feedback,
-              theme: theme,
-              onTap: () => {},
-            ),
+            // _buildDrawerItem(
+            //   title: "Help ",
+            //   icon: Icons.help,
+            //   theme: theme,
+            //   onTap: () => {},
+            // ),
+            // _buildDrawerItem(
+            //   title: "Feedback ",
+            //   icon: Icons.feedback,
+            //   theme: theme,
+            //   onTap: () => {},
+            // ),
           ],
         ),
       ),
@@ -174,6 +177,41 @@ class MainDrawerWidget extends StatelessWidget {
           onTap: () => _showThemeDialog(context),
         ),
       ],
+    );
+  }
+
+  void _showDeleteConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Confirm Deletion'),
+          content: const Text(
+            'Are you sure you want to delete all data? This action cannot be undone.',
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+              },
+            ),
+            TextButton(
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              child: const Text('Delete'),
+              onPressed: () async {
+                Navigator.of(dialogContext).pop();
+                Navigator.of(context).pop();
+
+                final dbHandler = DBHandler();
+                await dbHandler.deleteAndReset();
+
+                runApp(const MyApp());
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 

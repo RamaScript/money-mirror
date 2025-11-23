@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:money_mirror/views/screens/settings_screen.dart';
+import 'package:money_mirror/views/screens/splash_screen.dart';
 
 import 'views/screens/import_csv_screen.dart';
 import 'views/screens/main_screen.dart';
-import 'views/screens/splash_screen.dart';
 import 'views/screens/onboarding_screen.dart';
 
 class AppRoutes {
@@ -10,6 +11,7 @@ class AppRoutes {
   static const String onboarding = '/onboarding';
   static const String mainScreen = '/main_screen';
   static const String importCsvScreen = '/import_csv_screen';
+  static const String settingsScreen = '/settings_screen';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -21,6 +23,8 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const MainScreen());
       case importCsvScreen:
         return MaterialPageRoute(builder: (_) => const ImportCsvScreen());
+      case settingsScreen:
+        return MaterialPageRoute(builder: (_) => const SettingsScreen());
 
       default:
         return MaterialPageRoute(
