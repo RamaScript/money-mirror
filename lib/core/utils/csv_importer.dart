@@ -47,14 +47,12 @@ class CsvImporter {
     final lines = content.split('\n');
     appLog('getPreview: Total lines (split by \\n): ${lines.length}');
 
-    // Parse CSV with proper line endings
     final List<List<dynamic>> rows = const CsvToListConverter(
       shouldParseNumbers: false,
     ).convert(content);
 
     appLog('getPreview: Total rows parsed: ${rows.length}');
 
-    // Debug: Log first 3 rows
     for (int i = 0; i < rows.length && i < 3; i++) {
       appLog(
         'getPreview: Row $i has ${rows[i].length} columns: ${rows[i].take(3).toList()}',
@@ -88,7 +86,6 @@ class CsvImporter {
       'importFromFile: File read successfully, length: ${content.length} bytes',
     );
 
-    // Debug: Check line count
     final lineCount = content.split('\n').length;
     appLog('importFromFile: Total lines in file: $lineCount');
 
@@ -105,7 +102,6 @@ class CsvImporter {
     final errors = <String>[];
 
     try {
-      // Debug: Show raw content size
       appLog(
         'importFromString: Input content length: ${csvContent.length} bytes',
       );
@@ -113,7 +109,6 @@ class CsvImporter {
         'importFromString: Content preview: ${csvContent.substring(0, csvContent.length > 300 ? 300 : csvContent.length)}',
       );
 
-      // FIX: Parse CSV with proper quoted field handling
       final List<List<dynamic>> rows = const CsvToListConverter(
         shouldParseNumbers: false,
         eol: '\n',
@@ -121,18 +116,14 @@ class CsvImporter {
 
       appLog('importFromString: ✓ PARSED ${rows.length} rows total');
 
-      // SAFETY CHECK: If we got 1 mega-row with thousands of columns, something's wrong
       if (rows.length == 1 && rows[0].length > 100) {
         appLog(
           'importFromString: ⚠️  DETECTED PARSING ISSUE - Got 1 row with ${rows[0].length} columns',
         );
         appLog('importFromString: Attempting manual line-based parsing...');
-
-        // Manual CSV parsing line by line
         return _parseCSVManually(csvContent);
       }
 
-      // Debug: Log all rows
       appLog('importFromString: Row breakdown:');
       for (int i = 0; i < rows.length && i < 10; i++) {
         appLog('  Row $i: ${rows[i].length} columns');
@@ -289,37 +280,23 @@ class CsvImporter {
 
             final srcId = await AccountDao.getOrCreate(srcName);
             final dstId = await AccountDao.getOrCreate(dstName);
-            final transferCategoryId = await CategoryDao.getOrCreate(
-              'Transfer',
-              type: 'TRANSFER',
-            );
 
-            // Expense from source
+            // ✅ NEW: Single transfer transaction with to_account_id
             await TransactionDao.insertTransaction({
               TransactionTable.colAmount: amount,
-              TransactionTable.colType: 'EXPENSE',
+              TransactionTable.colType: 'TRANSFER',
               TransactionTable.colAccountId: srcId,
-              TransactionTable.colCategoryId: transferCategoryId,
+              TransactionTable.colToAccountId:
+                  dstId, // NEW: Destination account
+              TransactionTable.colCategoryId: 0, // 0 for transfers
               TransactionTable.colDate: date.toIso8601String(),
               TransactionTable.colNote: noteStr.isEmpty
-                  ? 'Transfer to $dstName'
+                  ? 'Transfer from $srcName to $dstName'
                   : noteStr,
             });
 
-            // Income to destination
-            await TransactionDao.insertTransaction({
-              TransactionTable.colAmount: amount,
-              TransactionTable.colType: 'INCOME',
-              TransactionTable.colAccountId: dstId,
-              TransactionTable.colCategoryId: transferCategoryId,
-              TransactionTable.colDate: date.toIso8601String(),
-              TransactionTable.colNote: noteStr.isEmpty
-                  ? 'Transfer from $srcName'
-                  : noteStr,
-            });
-
-            appLog('  ✅ Transfer: 2 transactions created');
-            imported += 2;
+            appLog('  ✅ Transfer: 1 transaction created (new format)');
+            imported += 1; // Only count as 1 transaction
           } else {
             final type = isIncome ? 'INCOME' : 'EXPENSE';
             appLog(
@@ -392,30 +369,6 @@ class CsvImporter {
     return s.replaceAll(RegExp(r'^\s*\d+\.\s*'), '').trim();
   }
 
-  // Helper to create category with proper type
-  static Future<int> _getOrCreateCategory(String name, String type) async {
-    final db = await DBHandler().database;
-
-    final res = await db.query(
-      'categories',
-      where: 'name = ? AND type = ?',
-      whereArgs: [name, type.toUpperCase()],
-      limit: 1,
-    );
-
-    if (res.isNotEmpty) {
-      appLog('    [CategoryDao] Found existing category: $name');
-      return res.first['id'] as int;
-    }
-
-    appLog('    [CategoryDao] Creating new category: $name with type: $type');
-    return await db.insert('categories', {
-      'name': name,
-      'icon': null,
-      'type': type.toUpperCase(),
-    });
-  }
-
   // Manual CSV parser for handling quoted fields with embedded newlines
   static Future<CsvImportResult> _parseCSVManually(String csvContent) async {
     appLog('========================================');
@@ -427,7 +380,6 @@ class CsvImporter {
     final errors = <String>[];
 
     try {
-      // Split by actual line breaks and reconstruct quoted fields
       final lines = csvContent.split('\n');
       appLog('_parseCSVManually: Total lines: ${lines.length}');
 
@@ -439,20 +391,17 @@ class CsvImporter {
       for (int lineIdx = 0; lineIdx < lines.length; lineIdx++) {
         String line = lines[lineIdx];
 
-        // Process character by character for proper quote handling
         for (int charIdx = 0; charIdx < line.length; charIdx++) {
           String char = line[charIdx];
 
           if (char == '"') {
-            // Check for escaped quote
             if (charIdx + 1 < line.length && line[charIdx + 1] == '"') {
               currentField += '"';
-              charIdx++; // Skip next quote
+              charIdx++;
             } else {
               inQuotes = !inQuotes;
             }
           } else if (char == ',' && !inQuotes) {
-            // End of field
             currentRow.add(currentField.trim());
             currentField = '';
           } else {
@@ -460,9 +409,7 @@ class CsvImporter {
           }
         }
 
-        // Check if line ended while in quotes (multiline field)
         if (!inQuotes) {
-          // Line is complete, add last field and finalize row
           if (currentField.isNotEmpty || currentRow.isNotEmpty) {
             currentRow.add(currentField.trim());
             if (currentRow.isNotEmpty && currentRow.any((f) => f.isNotEmpty)) {
@@ -472,12 +419,10 @@ class CsvImporter {
             currentField = '';
           }
         } else {
-          // Still in quotes, add newline and continue
           currentField += '\n';
         }
       }
 
-      // Add any remaining field
       if (currentField.isNotEmpty || currentRow.isNotEmpty) {
         currentRow.add(currentField.trim());
         if (currentRow.isNotEmpty && currentRow.any((f) => f.isNotEmpty)) {
@@ -495,7 +440,6 @@ class CsvImporter {
         );
       }
 
-      // Detect header
       int startRow = 0;
       final first = rows.first.map((e) => e.toUpperCase()).toList();
 
@@ -524,7 +468,6 @@ class CsvImporter {
           continue;
         }
 
-        // Ensure at least 6 fields
         while (row.length < 6) {
           row.add('');
         }
@@ -599,34 +542,21 @@ class CsvImporter {
 
             final srcId = await AccountDao.getOrCreate(srcName);
             final dstId = await AccountDao.getOrCreate(dstName);
-            final transferCategoryId = await CategoryDao.getOrCreate(
-              'Transfer',
-              type: 'TRANSFER',
-            );
 
+            // ✅ NEW: Single transfer transaction
             await TransactionDao.insertTransaction({
               TransactionTable.colAmount: amount,
-              TransactionTable.colType: 'EXPENSE',
+              TransactionTable.colType: 'TRANSFER',
               TransactionTable.colAccountId: srcId,
-              TransactionTable.colCategoryId: transferCategoryId,
+              TransactionTable.colToAccountId: dstId,
+              TransactionTable.colCategoryId: 0,
               TransactionTable.colDate: date.toIso8601String(),
               TransactionTable.colNote: noteStr.isEmpty
-                  ? 'Transfer to $dstName'
+                  ? 'Transfer from $srcName to $dstName'
                   : noteStr,
             });
 
-            await TransactionDao.insertTransaction({
-              TransactionTable.colAmount: amount,
-              TransactionTable.colType: 'INCOME',
-              TransactionTable.colAccountId: dstId,
-              TransactionTable.colCategoryId: transferCategoryId,
-              TransactionTable.colDate: date.toIso8601String(),
-              TransactionTable.colNote: noteStr.isEmpty
-                  ? 'Transfer from $srcName'
-                  : noteStr,
-            });
-
-            imported += 2;
+            imported += 1; // Count as 1 transaction
           } else {
             final type = isIncome ? 'INCOME' : 'EXPENSE';
             final accountName = _stripPrefix(

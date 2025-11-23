@@ -67,6 +67,15 @@ class MainDrawerWidget extends StatelessWidget {
               onTap: () => {},
             ),
             _buildDrawerItem(
+              title: "Demo ",
+              icon: Icons.slideshow,
+              theme: theme,
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, AppRoutes.onboarding);
+              },
+            ),
+            _buildDrawerItem(
               title: "Help ",
               icon: Icons.help,
               theme: theme,

@@ -6,11 +6,7 @@ class TransactionCard extends StatefulWidget {
   final Map<String, dynamic> transaction;
   final VoidCallback? onTap;
 
-  const TransactionCard({
-    super.key,
-    required this.transaction,
-    this.onTap,
-  });
+  const TransactionCard({super.key, required this.transaction, this.onTap});
 
   @override
   State<TransactionCard> createState() => _TransactionCardState();
@@ -29,10 +25,7 @@ class _TransactionCardState extends State<TransactionCard>
       duration: const Duration(milliseconds: 150),
     );
     _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeInOut,
-      ),
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
   }
 
@@ -49,7 +42,7 @@ class _TransactionCardState extends State<TransactionCard>
     final isIncome = widget.transaction['type'] == 'INCOME';
     final isTransfer = widget.transaction['type'] == 'TRANSFER';
     final amount = (widget.transaction['amount'] as num).toDouble();
-    
+
     // Determine color based on transaction type
     Color typeColor;
     if (isTransfer) {
@@ -88,10 +81,13 @@ class _TransactionCardState extends State<TransactionCard>
               onTap: widget.onTap,
               borderRadius: BorderRadius.circular(12),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
                 child: Row(
                   children: [
-                    // Category Icon
+                    // Icon - Category for Income/Expense, Transfer icon for Transfer
                     Container(
                       width: 40,
                       height: 40,
@@ -101,22 +97,27 @@ class _TransactionCardState extends State<TransactionCard>
                       ),
                       child: Center(
                         child: Text(
-                          widget.transaction['category_icon'] ?? '💰',
+                          isTransfer
+                              ? '🔄' // Transfer icon
+                              : (widget.transaction['category_icon'] ?? '💰'),
                           style: const TextStyle(fontSize: 20),
                         ),
                       ),
                     ),
                     const SizedBox(width: 12),
-                    
+
                     // Details
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          // Category name as title
+                          // Title - Category name for Income/Expense, "Transfer" for Transfer
                           Text(
-                            widget.transaction['category_name'] ?? 'Unknown',
+                            isTransfer
+                                ? 'Transfer'
+                                : (widget.transaction['category_name'] ??
+                                      'Unknown'),
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
@@ -126,34 +127,21 @@ class _TransactionCardState extends State<TransactionCard>
                             overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 2),
-                          // Account icon + name as subtitle
-                          Row(
-                            children: [
-                              Text(
-                                widget.transaction['account_icon'] ?? '🏦',
-                                style: const TextStyle(fontSize: 12),
-                              ),
-                              const SizedBox(width: 4),
-                              Expanded(
-                                child: Text(
-                                  widget.transaction['account_name'] ?? 'Unknown',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: theme.textTheme.bodySmall?.color,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
-                          ),
+                          // Subtitle - Different for transfers
+                          isTransfer
+                              ? _buildTransferSubtitle(theme)
+                              : _buildRegularSubtitle(theme),
                         ],
                       ),
                     ),
-                    
+
                     // Amount
                     Text(
-                      '${isIncome ? '+' : '-'}${PrefCurrencySymbol.rupee}${amount.toStringAsFixed(2)}',
+                      '${isIncome
+                          ? '+'
+                          : isTransfer
+                          ? ''
+                          : '-'}${PrefCurrencySymbol.rupee}${amount.toStringAsFixed(2)}',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -169,5 +157,75 @@ class _TransactionCardState extends State<TransactionCard>
       ),
     );
   }
-}
 
+  // Build subtitle for transfers: "Bank → Cash"
+  Widget _buildTransferSubtitle(ThemeData theme) {
+    final fromAccountIcon = widget.transaction['account_icon'] ?? '🏦';
+    final fromAccountName = widget.transaction['account_name'] ?? 'Unknown';
+    final toAccountIcon = widget.transaction['to_account_icon'] ?? '🏦';
+    final toAccountName = widget.transaction['to_account_name'] ?? 'Unknown';
+
+    return Row(
+      children: [
+        // From account
+        Text(fromAccountIcon, style: const TextStyle(fontSize: 12)),
+        const SizedBox(width: 2),
+        Text(
+          fromAccountName,
+          style: TextStyle(
+            fontSize: 12,
+            color: theme.textTheme.bodySmall?.color,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(width: 4),
+        // Arrow
+        Icon(
+          Icons.arrow_forward,
+          size: 12,
+          color: theme.textTheme.bodySmall?.color,
+        ),
+        const SizedBox(width: 4),
+        // To account
+        Text(toAccountIcon, style: const TextStyle(fontSize: 12)),
+        const SizedBox(width: 2),
+        Expanded(
+          child: Text(
+            toAccountName,
+            style: TextStyle(
+              fontSize: 12,
+              color: theme.textTheme.bodySmall?.color,
+              fontWeight: FontWeight.w500,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Build subtitle for regular transactions: "🏦 Bank"
+  Widget _buildRegularSubtitle(ThemeData theme) {
+    return Row(
+      children: [
+        Text(
+          widget.transaction['account_icon'] ?? '🏦',
+          style: const TextStyle(fontSize: 12),
+        ),
+        const SizedBox(width: 4),
+        Expanded(
+          child: Text(
+            widget.transaction['account_name'] ?? 'Unknown',
+            style: TextStyle(
+              fontSize: 12,
+              color: theme.textTheme.bodySmall?.color,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+}

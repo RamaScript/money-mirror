@@ -183,7 +183,6 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
         );
       },
     );
-
     if (pickedTime != null) {
       setState(() => selectedTime = pickedTime);
     }
@@ -193,18 +192,17 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     double parsedAmount = double.tryParse(amountCtrl.text) ?? 0;
 
     if (parsedAmount <= 0) {
-      // _showError("Please enter a valid amount");
       SnackUtils.error(context, "Please enter a valid amount");
       return;
     }
 
     if (selectedAccount == null) {
       SnackUtils.error(context, "Please select an account");
-
       return;
     }
 
     // For TRANSFER, check to account and create two transactions
+    // For TRANSFER - save as single transaction with to_account_id
     if (selectedType == AppStrings.TRANSFER) {
       if (selectedToAccount == null) {
         SnackUtils.error(context, "Please select a destination account");
@@ -219,32 +217,38 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       setState(() => isSaving = true);
 
       try {
-        // Create expense transaction from source account
-        final expenseTransaction = TransactionModel(
+        // Create single transfer transaction
+        final transaction = TransactionModel(
           amount: parsedAmount,
-          type: AppStrings.EXPENSE,
+          type: AppStrings.TRANSFER,
           accountId: selectedAccount!.id!,
-          categoryId: 0, // Use 0 for transfers
-          date: selectedDate.toIso8601String(),
+          toAccountId: selectedToAccount!.id!, // NEW: Destination account
+          categoryId: 0,
+          date: DateTime(
+            selectedDate.year,
+            selectedDate.month,
+            selectedDate.day,
+            selectedTime.hour,
+            selectedTime.minute,
+          ).toIso8601String(),
           note: noteCtrl.text.trim().isEmpty ? null : noteCtrl.text.trim(),
         );
 
-        // Create income transaction to destination account
-        final incomeTransaction = TransactionModel(
-          amount: parsedAmount,
-          type: AppStrings.INCOME,
-          accountId: selectedToAccount!.id!,
-          categoryId: 0, // Use 0 for transfers
-          date: selectedDate.toIso8601String(),
-          note: noteCtrl.text.trim().isEmpty ? null : noteCtrl.text.trim(),
-        );
-
-        await TransactionDao.insertTransaction(expenseTransaction.toMap());
-        await TransactionDao.insertTransaction(incomeTransaction.toMap());
-
-        if (mounted) {
-          SnackUtils.success(context, "Transfer completed successfully");
-          Navigator.pop(context, true);
+        if (editingTransactionId != null) {
+          await TransactionDao.updateTransaction(
+            id: editingTransactionId!,
+            data: transaction.toMap(),
+          );
+          if (mounted) {
+            SnackUtils.success(context, "Transfer updated successfully");
+            Navigator.pop(context, true);
+          }
+        } else {
+          await TransactionDao.insertTransaction(transaction.toMap());
+          if (mounted) {
+            SnackUtils.success(context, "Transfer completed successfully");
+            Navigator.pop(context, true);
+          }
         }
       } catch (e) {
         setState(() => isSaving = false);
@@ -252,7 +256,6 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       }
       return;
     }
-
     // For INCOME/EXPENSE
     if (selectedCategory == null) {
       SnackUtils.error(context, "Please select a category");

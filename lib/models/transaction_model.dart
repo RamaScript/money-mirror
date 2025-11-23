@@ -4,8 +4,9 @@ class TransactionModel {
   final String type; // INCOME / EXPENSE / TRANSFER
   final int accountId;
   final int categoryId;
-  final String date; // Store as TEXT in SQLite (ISO 8601 format)
+  final String date;
   final String? note;
+  final int? toAccountId; // NEW: For transfer destination
 
   TransactionModel({
     this.id,
@@ -15,9 +16,9 @@ class TransactionModel {
     required this.categoryId,
     required this.date,
     this.note,
+    this.toAccountId,
   });
 
-  // Convert to Map for database insert
   Map<String, dynamic> toMap() {
     return {
       if (id != null) "id": id,
@@ -27,10 +28,10 @@ class TransactionModel {
       "category_id": categoryId,
       "date": date,
       "note": note,
+      "to_account_id": toAccountId,
     };
   }
 
-  // Convert from Map (from database)
   factory TransactionModel.fromMap(Map<String, dynamic> map) {
     return TransactionModel(
       id: map["id"],
@@ -40,6 +41,7 @@ class TransactionModel {
       categoryId: map["category_id"],
       date: map["date"],
       note: map["note"],
+      toAccountId: map["to_account_id"],
     );
   }
 }

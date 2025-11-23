@@ -451,13 +451,45 @@ class _AnalysisScreenState extends State<AnalysisScreen>
           onPressed: () => Scaffold.of(context).openDrawer(),
           icon: const Icon(Icons.menu),
         ),
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(text: "Overview"),
-            Tab(text: "Categories"),
-            Tab(text: "Trends"),
-          ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(56),
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              color: AppColors.TertiaryColor, // background uses theme
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: TabBar(
+              controller: _tabController,
+              isScrollable: false,
+              dividerColor: Colors.transparent,
+
+              labelColor: AppColors.white,
+              unselectedLabelColor: AppColors.white.withOpacity(0.65),
+
+              labelStyle: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 15,
+              ),
+
+              indicatorSize: TabBarIndicatorSize.tab,
+              overlayColor: WidgetStateProperty.all(Colors.transparent),
+
+              indicator: BoxDecoration(
+                color: AppColors.white.withOpacity(
+                  0.18,
+                ), // subtle theme highlight
+                borderRadius: BorderRadius.circular(12),
+              ),
+
+              tabs: const [
+                Tab(text: "Overview"),
+                Tab(text: "Categories"),
+                Tab(text: "Trends"),
+              ],
+            ),
+          ),
         ),
       ),
       body: isLoading
@@ -502,6 +534,8 @@ class _AnalysisScreenState extends State<AnalysisScreen>
                           transactionCount: transactionCount,
                           startDate: startDate,
                           endDate: endDate,
+                          dailyExpenseData: dailyData,
+                          dailyIncomeData: dailyIncomeData,
                         ),
 
                         AnalysisCategoryTab(

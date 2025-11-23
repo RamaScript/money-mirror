@@ -76,14 +76,13 @@ class AnalysisTrendsTab extends StatelessWidget {
           const SizedBox(height: 24),
 
           // Calendar View
-          buildCalendarView(theme),
-
-          const SizedBox(height: 24),
+          // buildCalendarView(theme),
+          // const SizedBox(height: 24),
 
           // Account Analysis
           if (accountBreakdown.isNotEmpty) ...[
-            buildAccountViewSelector(theme),
-            const SizedBox(height: 16),
+            // buildAccountViewSelector(theme),
+            // const SizedBox(height: 16),
             buildAccountAnalysisChart(theme),
             const SizedBox(height: 24),
             buildAccountAnalysisList(theme),

@@ -8,6 +8,7 @@ class TransactionTable {
   static const String colCategoryId = "category_id";
   static const String colDate = "date";
   static const String colNote = "note";
+  static const String colToAccountId = "to_account_id"; // NEW
 
   static const String createTable =
       """
@@ -19,8 +20,10 @@ class TransactionTable {
       $colCategoryId INTEGER NOT NULL,
       $colDate TEXT NOT NULL,
       $colNote TEXT,
+      $colToAccountId INTEGER,
       FOREIGN KEY ($colAccountId) REFERENCES accounts(id) ON DELETE CASCADE,
-      FOREIGN KEY ($colCategoryId) REFERENCES categories(id) ON DELETE CASCADE
+      FOREIGN KEY ($colCategoryId) REFERENCES categories(id) ON DELETE CASCADE,
+      FOREIGN KEY ($colToAccountId) REFERENCES accounts(id) ON DELETE CASCADE
     );
   """;
 }

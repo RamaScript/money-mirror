@@ -1,7 +1,8 @@
+import 'package:money_mirror/core/utils/app_strings.dart';
 import 'package:money_mirror/database/db_handler.dart';
 
 class AnalysisUtils {
-  // Get total income for a date range
+  // Get total income for a date range (EXCLUDING TRANSFERS)
   static Future<double> getTotalIncome({
     required DateTime startDate,
     required DateTime endDate,
@@ -11,18 +12,21 @@ class AnalysisUtils {
       '''
       SELECT SUM(amount) as total 
       FROM transactions 
-      WHERE type = 'INCOME'
+      WHERE type = ?
         AND date >= ?
         AND date <= ?
-        AND type != 'TRANSFER'
     ''',
-      [startDate.toIso8601String(), endDate.toIso8601String()],
+      [
+        AppStrings.INCOME,
+        startDate.toIso8601String(),
+        endDate.toIso8601String(),
+      ],
     );
 
     return (result.first['total'] as num?)?.toDouble() ?? 0.0;
   }
 
-  // Get total expense for a date range
+  // Get total expense for a date range (EXCLUDING TRANSFERS)
   static Future<double> getTotalExpense({
     required DateTime startDate,
     required DateTime endDate,
@@ -32,18 +36,21 @@ class AnalysisUtils {
       '''
       SELECT SUM(amount) as total 
       FROM transactions 
-      WHERE type = 'EXPENSE'
+      WHERE type = ?
         AND date >= ?
         AND date <= ?
-        AND type != 'TRANSFER'
     ''',
-      [startDate.toIso8601String(), endDate.toIso8601String()],
+      [
+        AppStrings.EXPENSE,
+        startDate.toIso8601String(),
+        endDate.toIso8601String(),
+      ],
     );
 
     return (result.first['total'] as num?)?.toDouble() ?? 0.0;
   }
 
-  // Get category-wise breakdown for expenses
+  // Get category-wise breakdown (EXCLUDING TRANSFERS)
   static Future<List<Map<String, dynamic>>> getCategoryBreakdown({
     required DateTime startDate,
     required DateTime endDate,
@@ -63,7 +70,6 @@ class AnalysisUtils {
       WHERE t.type = ?
         AND t.date >= ?
         AND t.date <= ?
-        AND t.type != 'TRANSFER'
       GROUP BY t.category_id
       ORDER BY total DESC
     ''',
@@ -71,7 +77,7 @@ class AnalysisUtils {
     );
   }
 
-  // Get daily transactions for a date range
+  // Get daily transactions for a date range (EXCLUDING TRANSFERS)
   static Future<List<Map<String, dynamic>>> getDailyTransactions({
     required DateTime startDate,
     required DateTime endDate,
@@ -87,7 +93,6 @@ class AnalysisUtils {
       WHERE type = ?
         AND date >= ?
         AND date <= ?
-        AND type != 'TRANSFER'
       GROUP BY DATE(date)
       ORDER BY date ASC
     ''',
@@ -95,7 +100,7 @@ class AnalysisUtils {
     );
   }
 
-  // Get monthly summary
+  // Get monthly summary (EXCLUDING TRANSFERS)
   static Future<Map<String, dynamic>> getMonthlySummary({
     required int month,
     required int year,
@@ -112,15 +117,19 @@ class AnalysisUtils {
 
     final db = await DBHandler().database;
 
-    // Transaction count
+    // Transaction count (EXCLUDING TRANSFERS)
     final countResult = await db.rawQuery(
       '''
       SELECT COUNT(*) as count 
       FROM transactions 
       WHERE date >= ? AND date <= ?
-      AND type != 'TRANSFER'
+        AND type != ?
     ''',
-      [startDate.toIso8601String(), endDate.toIso8601String()],
+      [
+        startDate.toIso8601String(),
+        endDate.toIso8601String(),
+        AppStrings.TRANSFER,
+      ],
     );
 
     return {
@@ -133,7 +142,7 @@ class AnalysisUtils {
     };
   }
 
-  // Get top spending categories
+  // Get top spending categories (EXCLUDING TRANSFERS)
   static Future<List<Map<String, dynamic>>> getTopSpendingCategories({
     required DateTime startDate,
     required DateTime endDate,
@@ -142,12 +151,12 @@ class AnalysisUtils {
     final breakdown = await getCategoryBreakdown(
       startDate: startDate,
       endDate: endDate,
-      type: 'EXPENSE',
+      type: AppStrings.EXPENSE,
     );
     return breakdown.take(limit).toList();
   }
 
-  // Compare two periods
+  // Compare two periods (EXCLUDING TRANSFERS)
   static Future<Map<String, dynamic>> comparePeriods({
     required DateTime period1Start,
     required DateTime period1End,
@@ -194,7 +203,7 @@ class AnalysisUtils {
     };
   }
 
-  // Get weekly summary for current week
+  // Get weekly summary for current week (EXCLUDING TRANSFERS)
   static Future<List<Map<String, dynamic>>> getWeeklySummary() async {
     final now = DateTime.now();
     final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
@@ -205,11 +214,11 @@ class AnalysisUtils {
     return getDailyTransactions(
       startDate: startOfWeek,
       endDate: endOfWeek,
-      type: 'EXPENSE',
+      type: AppStrings.EXPENSE,
     );
   }
 
-  // Get transaction count by type for a date range
+  // Get transaction count by type for a date range (EXCLUDING TRANSFERS)
   static Future<Map<String, int>> getTransactionCounts({
     required DateTime startDate,
     required DateTime endDate,
@@ -220,20 +229,26 @@ class AnalysisUtils {
       '''
       SELECT COUNT(*) as count 
       FROM transactions 
-      WHERE type = 'INCOME' AND date >= ? AND date <= ?
-      AND type != 'TRANSFER'
+      WHERE type = ? AND date >= ? AND date <= ?
     ''',
-      [startDate.toIso8601String(), endDate.toIso8601String()],
+      [
+        AppStrings.INCOME,
+        startDate.toIso8601String(),
+        endDate.toIso8601String(),
+      ],
     );
 
     final expenseResult = await db.rawQuery(
       '''
       SELECT COUNT(*) as count 
       FROM transactions 
-      WHERE type = 'EXPENSE' AND date >= ? AND date <= ?
-      AND type != 'TRANSFER'
+      WHERE type = ? AND date >= ? AND date <= ?
     ''',
-      [startDate.toIso8601String(), endDate.toIso8601String()],
+      [
+        AppStrings.EXPENSE,
+        startDate.toIso8601String(),
+        endDate.toIso8601String(),
+      ],
     );
 
     return {
@@ -242,7 +257,7 @@ class AnalysisUtils {
     };
   }
 
-  // Get average daily spending
+  // Get average daily spending (EXCLUDING TRANSFERS)
   static Future<double> getAverageDailySpending({
     required DateTime startDate,
     required DateTime endDate,
@@ -256,32 +271,42 @@ class AnalysisUtils {
     return days > 0 ? totalExpense / days : 0.0;
   }
 
-  // Get account-wise breakdown
+  // Get account-wise breakdown (EXCLUDING TRANSFERS but showing their impact)
   static Future<List<Map<String, dynamic>>> getAccountBreakdown({
     required DateTime startDate,
     required DateTime endDate,
   }) async {
     final db = await DBHandler().database;
-    return await db.rawQuery(
+
+    // Get income and expense per account (excluding transfers)
+    final result = await db.rawQuery(
       '''
       SELECT 
         a.id as account_id,
         a.name as account_name,
         a.icon as account_icon,
-        SUM(CASE WHEN t.type = 'INCOME' THEN t.amount ELSE 0 END) as income,
-        SUM(CASE WHEN t.type = 'EXPENSE' THEN t.amount ELSE 0 END) as expense
+        SUM(CASE WHEN t.type = ? THEN t.amount ELSE 0 END) as income,
+        SUM(CASE WHEN t.type = ? THEN t.amount ELSE 0 END) as expense
       FROM transactions t
       LEFT JOIN accounts a ON t.account_id = a.id
       WHERE t.date >= ? AND t.date <= ?
-      AND t.type != 'TRANSFER'
+        AND t.type != ?
       GROUP BY t.account_id
       ORDER BY a.name ASC
     ''',
-      [startDate.toIso8601String(), endDate.toIso8601String()],
+      [
+        AppStrings.INCOME,
+        AppStrings.EXPENSE,
+        startDate.toIso8601String(),
+        endDate.toIso8601String(),
+        AppStrings.TRANSFER,
+      ],
     );
+
+    return result;
   }
 
-  // Get daily income transactions
+  // Get daily income transactions (EXCLUDING TRANSFERS)
   static Future<List<Map<String, dynamic>>> getDailyIncome({
     required DateTime startDate,
     required DateTime endDate,
@@ -293,13 +318,16 @@ class AnalysisUtils {
         DATE(date) as day,
         SUM(amount) as total
       FROM transactions
-      WHERE type = 'INCOME'
+      WHERE type = ?
         AND date >= ? AND date <= ?
-        AND type != 'TRANSFER'
       GROUP BY DATE(date)
       ORDER BY date ASC
     ''',
-      [startDate.toIso8601String(), endDate.toIso8601String()],
+      [
+        AppStrings.INCOME,
+        startDate.toIso8601String(),
+        endDate.toIso8601String(),
+      ],
     );
   }
 }

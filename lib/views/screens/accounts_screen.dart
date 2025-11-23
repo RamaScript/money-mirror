@@ -59,6 +59,7 @@ class _AccountsScreenState extends State<AccountsScreen> {
     final accountData = await AccountDao.getAccounts();
     final expensesGrouped = await TransactionDao.getExpensesGrouped();
     final incomeGrouped = await TransactionDao.getIncomeGrouped();
+    final transferImpact = await TransactionDao.getTransferImpact(); // ✅ NEW
 
     double totalBalance = 0;
     double totalIncome = 0;
@@ -74,8 +75,11 @@ class _AccountsScreenState extends State<AccountsScreen> {
       final initial = (map['initial_amount'] as num?)?.toDouble() ?? 0.0;
       final income = incomeGrouped[id] ?? 0.0;
       final expense = expensesGrouped[id] ?? 0.0;
+      final transfer = transferImpact[id] ?? 0.0; // ✅ NEW: Get transfer impact
 
-      final balance = initial + income - expense;
+      // ✅ NEW: Balance = initial + income - expense + transfer impact
+      // Transfer impact is: (money received from transfers) - (money sent via transfers)
+      final balance = initial + income - expense + transfer;
 
       balances[id] = balance;
       account.balance = balance;
