@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:money_mirror/core/utils/app_colors.dart';
+import 'package:money_mirror/core/utils/image_paths.dart';
 import 'package:money_mirror/core/utils/log_utils.dart';
 import 'package:money_mirror/core/utils/pref_currency_symbol.dart';
 
@@ -77,13 +79,17 @@ class AnalysisOverviewTab extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.compare_arrows, color: theme.colorScheme.primary),
-              const SizedBox(width: 8),
+              SvgPicture.asset(
+                ImagePaths.icArrowComparison,
+                color: theme.colorScheme.primary,
+                height: 20,
+              ),
+              const SizedBox(width: 12),
               Text(
                 "Period Comparison",
                 style: TextStyle(
                   fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w600,
                   color: theme.textTheme.titleLarge?.color,
                 ),
               ),
@@ -96,19 +102,21 @@ class AnalysisOverviewTab extends StatelessWidget {
               const Text("Expense Change:"),
               Row(
                 children: [
-                  Icon(
-                    isIncrease ? Icons.trending_up : Icons.trending_down,
+                  SvgPicture.asset(
+                    isIncrease
+                        ? ImagePaths.icArrowTrendUp
+                        : ImagePaths.icArrowTrendDown,
                     color: isIncrease
                         ? AppColors.expenseColor
                         : AppColors.incomeColor,
-                    size: 20,
+                    height: 20,
                   ),
                   const SizedBox(width: 4),
                   Text(
                     "${expensePercentage.abs().toStringAsFixed(1)}%",
                     style: TextStyle(
                       fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w400,
                       color: isIncrease
                           ? AppColors.expenseColor
                           : AppColors.incomeColor,
@@ -163,7 +171,7 @@ class AnalysisOverviewTab extends StatelessWidget {
                 "Insights",
                 style: TextStyle(
                   fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w600,
                   color: theme.textTheme.titleLarge?.color,
                 ),
               ),
@@ -172,27 +180,27 @@ class AnalysisOverviewTab extends StatelessWidget {
           const Divider(),
           buildInsightRow(
             theme,
-            Icons.calendar_today,
+            ImagePaths.icCalender,
             "Average daily spending",
             PrefCurrencySymbol.rupee + avgDaily.toStringAsFixed(2),
           ),
           if (topCategory != null)
             buildInsightRow(
               theme,
-              Icons.trending_up,
+              ImagePaths.icArrowTrendUp,
               "Highest spending category",
               "${topCategory['category_name']} (${PrefCurrencySymbol.rupee}${(topCategory['total'] as num).toDouble().toStringAsFixed(2)})",
             ),
           buildInsightRow(
             theme,
-            Icons.receipt,
+            ImagePaths.icNote,
             "Total transactions",
             transactionCount.toString(),
           ),
           if (balance < 0)
             buildInsightRow(
               theme,
-              Icons.warning,
+              ImagePaths.icWarning,
               "Warning",
               "Expenses exceed income",
               color: Colors.red,
@@ -202,65 +210,9 @@ class AnalysisOverviewTab extends StatelessWidget {
     );
   }
 
-  Widget buildQuickStats(ThemeData theme) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: theme.cardColor,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Quick Stats",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: theme.textTheme.titleLarge?.color,
-            ),
-          ),
-          const Divider(),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              buildStatItem(
-                theme,
-                "Income",
-                totalIncome,
-                AppColors.incomeColor,
-              ),
-              Container(width: 1, height: 40, color: theme.dividerColor),
-              buildStatItem(
-                theme,
-                "Expense",
-                totalExpense,
-                AppColors.expenseColor,
-              ),
-              Container(width: 1, height: 40, color: theme.dividerColor),
-              buildStatItem(
-                theme,
-                "Savings",
-                balance,
-                balance >= 0 ? AppColors.primaryColor : Colors.orange,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget buildInsightRow(
     ThemeData theme,
-    IconData icon,
+    String icon,
     String label,
     String value, {
     Color? color,
@@ -269,7 +221,7 @@ class AnalysisOverviewTab extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: color ?? theme.colorScheme.primary),
+          SvgPicture.asset(icon, color: theme.colorScheme.primary, height: 28),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -416,13 +368,17 @@ class AnalysisOverviewTab extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.calendar_month, color: theme.colorScheme.primary),
+              SvgPicture.asset(
+                ImagePaths.icCalender,
+                color: theme.colorScheme.primary,
+                height: 24,
+              ),
               const SizedBox(width: 8),
               Text(
                 DateFormat('MMMM yyyy').format(firstDayOfMonth),
                 style: TextStyle(
                   fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w400,
                   color: theme.textTheme.titleLarge?.color,
                 ),
               ),

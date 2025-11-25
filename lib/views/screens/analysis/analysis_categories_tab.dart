@@ -1,6 +1,8 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:money_mirror/core/utils/app_colors.dart';
+import 'package:money_mirror/core/utils/image_paths.dart';
 import 'package:money_mirror/core/utils/pref_currency_symbol.dart';
 
 class AnalysisCategoryTab extends StatelessWidget {
@@ -49,11 +51,7 @@ class AnalysisCategoryTab extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
-                      Icons.pie_chart,
-                      size: 64,
-                      color: theme.textTheme.bodySmall?.color,
-                    ),
+                    SvgPicture.asset(ImagePaths.icPieChart, height: 78),
                     const SizedBox(height: 16),
                     Text(
                       "No ${selectedCategoryType.toLowerCase()} data available",

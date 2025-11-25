@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:money_mirror/core/utils/app_colors.dart';
 import 'package:money_mirror/core/utils/app_strings.dart';
+import 'package:money_mirror/core/utils/image_paths.dart';
 import 'package:money_mirror/core/utils/log_utils.dart';
 import 'package:money_mirror/core/utils/pref_currency_symbol.dart';
 import 'package:money_mirror/core/utils/snack_utils.dart';
@@ -465,10 +467,22 @@ class _HomeScreenState extends State<HomeScreen>
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Home"),
+        centerTitle: true,
+        title: Text(
+          "Money Mirror",
+          style: TextStyle(
+            fontSize: 16,
+            fontFamily: "Pacifico",
+            fontWeight: FontWeight.w100,
+            color: theme.textTheme.titleLarge?.color,
+          ),
+        ),
         leading: IconButton(
           onPressed: () => Scaffold.of(context).openDrawer(),
-          icon: const Icon(Icons.menu),
+          icon: SvgPicture.asset(
+            ImagePaths.icMenu,
+            color: Theme.of(context).colorScheme.secondary,
+          ),
         ),
       ),
       body: isLoading
@@ -550,7 +564,7 @@ class _HomeScreenState extends State<HomeScreen>
             style: const TextStyle(
               fontSize: 36,
               color: AppColors.white,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: 24),
@@ -558,7 +572,7 @@ class _HomeScreenState extends State<HomeScreen>
             children: [
               Expanded(
                 child: _buildSummaryCard(
-                  icon: Icons.arrow_downward,
+                  icon: ImagePaths.icArrowDown,
                   label: AppStrings.INCOME_LABEL,
                   amount: totalIncome,
                   color: AppColors.incomeColor,
@@ -567,7 +581,7 @@ class _HomeScreenState extends State<HomeScreen>
               const SizedBox(width: 16),
               Expanded(
                 child: _buildSummaryCard(
-                  icon: Icons.arrow_upward,
+                  icon: ImagePaths.icArrowUp,
                   label: AppStrings.EXPENSE_LABEL,
                   amount: totalExpense,
                   color: AppColors.expenseColor,
@@ -581,7 +595,7 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Widget _buildSummaryCard({
-    required IconData icon,
+    required String icon,
     required String label,
     required double amount,
     required Color color,
@@ -597,7 +611,7 @@ class _HomeScreenState extends State<HomeScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, color: color, size: 20),
+              SvgPicture.asset(icon, color: color, height: 24),
               const SizedBox(width: 4),
               Text(
                 label,
@@ -683,17 +697,13 @@ class _HomeScreenState extends State<HomeScreen>
       padding: const EdgeInsets.all(40),
       child: Column(
         children: [
-          Icon(
-            Icons.receipt_long,
-            size: 64,
-            color: theme.textTheme.bodySmall?.color,
-          ),
+          SvgPicture.asset(ImagePaths.icNote, height: 64),
           const SizedBox(height: 16),
           Text(
             AppStrings.NO_TRANSACTIONS,
             style: TextStyle(
               fontSize: 18,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w400,
               color: theme.textTheme.titleLarge?.color,
             ),
           ),
@@ -701,7 +711,7 @@ class _HomeScreenState extends State<HomeScreen>
           Text(
             AppStrings.ADD_FIRST_TRANSACTION,
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 12,
               color: theme.textTheme.bodySmall?.color,
             ),
           ),
@@ -835,7 +845,7 @@ class _HomeScreenState extends State<HomeScreen>
                       '${isIncome ? '+' : '-'}${PrefCurrencySymbol.rupee}${amount.toStringAsFixed(2)}',
                       style: TextStyle(
                         fontSize: 32,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w400,
                         color: typeColor,
                       ),
                     ),

@@ -120,7 +120,7 @@ class _TransactionCardState extends State<TransactionCard>
                                       'Unknown'),
                             style: TextStyle(
                               fontSize: 14,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w500,
                               color: theme.textTheme.titleMedium?.color,
                             ),
                             maxLines: 1,
@@ -144,7 +144,7 @@ class _TransactionCardState extends State<TransactionCard>
                           : '-'}${PrefCurrencySymbol.rupee}${amount.toStringAsFixed(2)}',
                       style: TextStyle(
                         fontSize: 14,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w500,
                         color: typeColor,
                       ),
                     ),

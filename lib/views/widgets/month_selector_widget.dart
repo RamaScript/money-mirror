@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
+import 'package:money_mirror/core/utils/image_paths.dart';
 import 'package:money_mirror/views/widgets/filter_dialog.dart';
 
 class MonthSelectorWidget extends StatelessWidget {
@@ -108,10 +110,10 @@ class MonthSelectorWidget extends StatelessWidget {
                   color: theme.colorScheme.primary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(
-                  Icons.chevron_left,
-                  color: theme.colorScheme.primary,
-                  size: 24,
+                child: SvgPicture.asset(
+                  ImagePaths.icArrowLeft,
+                  color: Theme.of(context).colorScheme.primary,
+                  height: 20,
                 ),
               ),
             ),
@@ -128,7 +130,7 @@ class MonthSelectorWidget extends StatelessWidget {
                   _getDisplayText(),
                   style: TextStyle(
                     fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w400,
                     color: theme.textTheme.titleLarge?.color,
                   ),
                   textAlign: TextAlign.center,
@@ -160,10 +162,10 @@ class MonthSelectorWidget extends StatelessWidget {
                   color: theme.colorScheme.primary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(
-                  Icons.chevron_right,
-                  color: theme.colorScheme.primary,
-                  size: 24,
+                child: SvgPicture.asset(
+                  ImagePaths.icArrowRight,
+                  color: Theme.of(context).colorScheme.primary,
+                  height: 20,
                 ),
               ),
             ),
@@ -183,10 +185,10 @@ class MonthSelectorWidget extends StatelessWidget {
                     color: theme.colorScheme.secondary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(
-                    Icons.filter_list,
-                    color: theme.colorScheme.secondary,
-                    size: 24,
+                  child: SvgPicture.asset(
+                    ImagePaths.icFilter,
+                    color: Theme.of(context).colorScheme.primary,
+                    height: 20,
                   ),
                 ),
               ),

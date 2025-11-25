@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:money_mirror/core/utils/app_colors.dart';
+import 'package:money_mirror/core/utils/image_paths.dart';
 import 'package:money_mirror/core/utils/pref_currency_symbol.dart';
 import 'package:money_mirror/database/dao/account_dao.dart';
 import 'package:money_mirror/database/dao/transaction_dao.dart';
@@ -157,15 +159,25 @@ class _AccountsScreenState extends State<AccountsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Accounts"),
+        title: const Text(
+          "Accounts",
+          style: TextStyle(fontWeight: FontWeight.w400),
+        ),
         leading: IconButton(
           onPressed: () => Scaffold.of(context).openDrawer(),
-          icon: const Icon(Icons.menu),
+          icon: SvgPicture.asset(
+            ImagePaths.icMenu,
+            color: Theme.of(context).colorScheme.secondary,
+          ),
         ),
+        centerTitle: true,
         actions: [
           IconButton(
             onPressed: _openAddAccountDialog,
-            icon: const Icon(Icons.add),
+            icon: SvgPicture.asset(
+              ImagePaths.icAdd,
+              color: Theme.of(context).colorScheme.primary,
+            ),
           ),
         ],
       ),
@@ -289,11 +301,12 @@ class _AccountsScreenState extends State<AccountsScreen> {
       padding: const EdgeInsets.all(40),
       child: Column(
         children: [
-          Icon(
-            Icons.account_balance_wallet,
-            size: 64,
-            color: theme.textTheme.bodySmall?.color,
+          SvgPicture.asset(
+            ImagePaths.icWallet,
+            color: Theme.of(context).colorScheme.primary,
+            height: 64,
           ),
+
           const SizedBox(height: 16),
           Text("No accounts added", style: theme.textTheme.titleLarge),
           const SizedBox(height: 6),

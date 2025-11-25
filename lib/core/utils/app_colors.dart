@@ -43,5 +43,6 @@ class AppColors {
 
   // Theme colors
   static const Color darkScaffold = Color(0xFF101414);
-  static const Color darkAppBar = Color(0xFF0E2222);
+  // static const Color darkAppBar = Color(0xFF0E2222);
+  static const Color darkAppBar = Color(0xFF101414);
 }

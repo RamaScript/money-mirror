@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:money_mirror/core/utils/app_strings.dart';
+import 'package:money_mirror/core/utils/image_paths.dart';
 import 'package:money_mirror/database/dao/category_dao.dart';
 import 'package:money_mirror/models/category_model.dart';
 import 'package:money_mirror/views/widgets/category/category_transactions_bottom_sheet.dart';
@@ -98,15 +100,25 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Categories"),
+        title: const Text(
+          "Categories",
+          style: TextStyle(fontWeight: FontWeight.w400),
+        ),
         leading: IconButton(
           onPressed: () => Scaffold.of(context).openDrawer(),
-          icon: const Icon(Icons.menu),
+          icon: SvgPicture.asset(
+            ImagePaths.icMenu,
+            color: Theme.of(context).colorScheme.secondary,
+          ),
         ),
+        centerTitle: true,
         actions: [
           IconButton(
             onPressed: _openAddCategoryDialog,
-            icon: const Icon(Icons.add),
+            icon: SvgPicture.asset(
+              ImagePaths.icAdd,
+              color: Theme.of(context).colorScheme.primary,
+            ),
           ),
         ],
       ),
@@ -276,11 +288,12 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.category,
-            size: 64,
-            color: theme.textTheme.bodySmall?.color,
+          SvgPicture.asset(
+            ImagePaths.icCategory,
+            color: Theme.of(context).colorScheme.primary,
+            height: 64,
           ),
+
           const SizedBox(height: 16),
           Text(
             "No categories added",

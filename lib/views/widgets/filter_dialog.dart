@@ -1,16 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:money_mirror/core/utils/app_colors.dart';
+import 'package:money_mirror/core/utils/image_paths.dart';
 
-enum ViewMode {
-  daily,
-  weekly,
-  monthly,
-  threeMonths,
-  sixMonths,
-  yearly,
-  custom,
-}
+enum ViewMode { daily, weekly, monthly, threeMonths, sixMonths, yearly, custom }
 
 class FilterDialog extends StatefulWidget {
   final ViewMode? initialMode;
@@ -39,7 +33,9 @@ class _FilterDialogState extends State<FilterDialog> {
   void initState() {
     super.initState();
     selectedMode = widget.initialMode ?? ViewMode.monthly;
-    startDate = widget.initialStartDate ?? DateTime.now().subtract(const Duration(days: 30));
+    startDate =
+        widget.initialStartDate ??
+        DateTime.now().subtract(const Duration(days: 30));
     endDate = widget.initialEndDate ?? DateTime.now();
   }
 
@@ -104,9 +100,7 @@ class _FilterDialogState extends State<FilterDialog> {
     final isDark = theme.brightness == Brightness.dark;
 
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       backgroundColor: isDark ? theme.cardColor : Colors.white,
       child: Container(
         padding: const EdgeInsets.all(24),
@@ -115,38 +109,40 @@ class _FilterDialogState extends State<FilterDialog> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header
-            Row(
-              children: [
-                Icon(
-                  Icons.filter_list,
-                  color: theme.colorScheme.primary,
-                  size: 28,
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  'View Mode',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: theme.textTheme.titleLarge?.color,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'View Mode',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w400,
+                      color: theme.textTheme.titleLarge?.color,
+                    ),
                   ),
-                ),
-              ],
+                  const SizedBox(width: 24),
+
+                  SvgPicture.asset(
+                    ImagePaths.icFilter,
+                    color: Theme.of(context).colorScheme.primary,
+                    height: 24,
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 8),
-            Divider(color: theme.dividerColor),
             const SizedBox(height: 20),
 
             // View Mode Options
-            ...ViewMode.values.map((mode) => _buildModeOption(
-                  context,
-                  mode,
-                  selectedMode == mode,
-                  () {
+            ...ViewMode.values.map(
+              (mode) =>
+                  _buildModeOption(context, mode, selectedMode == mode, () {
                     setState(() => selectedMode = mode);
-                  },
-                )),
-            
+                  }),
+            ),
+
             // Custom Date Range Pickers (shown when custom is selected)
             if (selectedMode == ViewMode.custom) ...[
               const SizedBox(height: 20),
@@ -170,7 +166,10 @@ class _FilterDialogState extends State<FilterDialog> {
                         GestureDetector(
                           onTap: _selectStartDate,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 12,
+                              horizontal: 12,
+                            ),
                             decoration: BoxDecoration(
                               color: theme.colorScheme.primary.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(12),
@@ -190,7 +189,9 @@ class _FilterDialogState extends State<FilterDialog> {
                                 Expanded(
                                   child: Text(
                                     startDate != null
-                                        ? DateFormat('MMM dd, yyyy').format(startDate!)
+                                        ? DateFormat(
+                                            'MMM dd, yyyy',
+                                          ).format(startDate!)
                                         : 'Select start date',
                                     style: TextStyle(
                                       fontSize: 13,
@@ -222,7 +223,10 @@ class _FilterDialogState extends State<FilterDialog> {
                         GestureDetector(
                           onTap: _selectEndDate,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 12,
+                              horizontal: 12,
+                            ),
                             decoration: BoxDecoration(
                               color: theme.colorScheme.primary.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(12),
@@ -242,7 +246,9 @@ class _FilterDialogState extends State<FilterDialog> {
                                 Expanded(
                                   child: Text(
                                     endDate != null
-                                        ? DateFormat('MMM dd, yyyy').format(endDate!)
+                                        ? DateFormat(
+                                            'MMM dd, yyyy',
+                                          ).format(endDate!)
                                         : 'Select end date',
                                     style: TextStyle(
                                       fontSize: 13,
@@ -260,9 +266,9 @@ class _FilterDialogState extends State<FilterDialog> {
                 ],
               ),
             ],
-            
+
             const SizedBox(height: 24),
-            
+
             // Action Buttons
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -317,7 +323,7 @@ class _FilterDialogState extends State<FilterDialog> {
     VoidCallback onTap,
   ) {
     final theme = Theme.of(context);
-    
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Material(
@@ -355,7 +361,9 @@ class _FilterDialogState extends State<FilterDialog> {
                     _getModeLabel(mode),
                     style: TextStyle(
                       fontSize: 16,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.normal,
                       color: isSelected
                           ? theme.colorScheme.primary
                           : theme.textTheme.bodyLarge?.color,
@@ -414,4 +422,3 @@ class _FilterDialogState extends State<FilterDialog> {
     }
   }
 }
-

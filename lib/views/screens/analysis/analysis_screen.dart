@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:money_mirror/core/utils/app_colors.dart';
+import 'package:money_mirror/core/utils/image_paths.dart';
 import 'package:money_mirror/core/utils/log_utils.dart';
 import 'package:money_mirror/core/utils/pref_currency_symbol.dart';
 import 'package:money_mirror/views/screens/analysis/analysis_categories_tab.dart';
@@ -441,13 +443,20 @@ class _AnalysisScreenState extends State<AnalysisScreen>
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Analysis"),
+        centerTitle: true,
+        title: const Text(
+          "Analysis",
+          style: TextStyle(fontWeight: FontWeight.w400),
+        ),
         leading: IconButton(
           onPressed: () => Scaffold.of(context).openDrawer(),
-          icon: const Icon(Icons.menu),
+          icon: SvgPicture.asset(
+            ImagePaths.icMenu,
+            color: Theme.of(context).colorScheme.secondary,
+          ),
         ),
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(56),
+          preferredSize: const Size.fromHeight(72),
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
             padding: const EdgeInsets.all(4),

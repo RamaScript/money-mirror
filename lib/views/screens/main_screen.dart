@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:money_mirror/core/utils/image_paths.dart';
 import 'package:money_mirror/views/screens/accounts_screen.dart';
 import 'package:money_mirror/views/screens/add_transaction_screen.dart';
 import 'package:money_mirror/views/screens/analysis/analysis_screen.dart';
@@ -33,26 +35,59 @@ class _MainScreenState extends State<MainScreen> {
       body: screens[_currentIndex](_homeRefreshId),
       floatingActionButton: FloatingActionButton(
         onPressed: _navigateToAddTransaction,
-        child: Icon(Icons.add),
+        child: SvgPicture.asset(
+          ImagePaths.icAdd,
+          color: Theme.of(context).colorScheme.secondary,
+          height: 20,
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         type: BottomNavigationBarType.fixed,
+
+        selectedItemColor: Theme.of(context).colorScheme.primary,
+        unselectedItemColor: Colors.grey,
+        selectedFontSize: 12,
+        unselectedFontSize: 12,
+
+        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w400),
+        unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w100),
+
         onTap: (index) => setState(() => _currentIndex = index),
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.analytics),
+            icon: navIcon(ImagePaths.icHome, 0),
+            label: "Home",
+          ),
+          BottomNavigationBarItem(
+            icon: navIcon(ImagePaths.icGraph, 1),
             label: "Analysis",
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.wallet), label: "Budget"),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Account"),
           BottomNavigationBarItem(
-            icon: Icon(Icons.category),
+            icon: navIcon(ImagePaths.icBudget, 2),
+            label: "Budget",
+          ),
+          BottomNavigationBarItem(
+            icon: navIcon(ImagePaths.icWallet, 3),
+            label: "Account",
+          ),
+          BottomNavigationBarItem(
+            icon: navIcon(ImagePaths.icCategory, 4),
             label: "Category",
           ),
         ],
       ),
+    );
+  }
+
+  Widget navIcon(String path, int index) {
+    return SvgPicture.asset(
+      path,
+      width: 24,
+      height: 24,
+      color: _currentIndex == index
+          ? Theme.of(context).colorScheme.primary
+          : Colors.grey,
     );
   }
 

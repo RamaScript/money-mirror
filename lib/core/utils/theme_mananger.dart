@@ -3,8 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ThemeManager extends ChangeNotifier {
   static const String _themeKey = 'theme_mode';
-  ThemeMode _themeMode = ThemeMode.dark;
 
+  ThemeMode _themeMode = ThemeMode.system;
   ThemeMode get themeMode => _themeMode;
 
   ThemeManager() {
@@ -13,8 +13,14 @@ class ThemeManager extends ChangeNotifier {
 
   Future<void> _loadTheme() async {
     final prefs = await SharedPreferences.getInstance();
-    final themeName = prefs.getString(_themeKey) ?? 'dark';
-    _themeMode = _getThemeModeFromString(themeName);
+    final storedTheme = prefs.getString(_themeKey);
+
+    if (storedTheme != null) {
+      _themeMode = _themeFromString(storedTheme);
+    } else {
+      _themeMode = ThemeMode.system; // First-time default
+    }
+
     notifyListeners();
   }
 
@@ -23,29 +29,29 @@ class ThemeManager extends ChangeNotifier {
     notifyListeners();
 
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_themeKey, _getStringFromThemeMode(mode));
+    await prefs.setString(_themeKey, _stringFromTheme(mode));
   }
 
-  ThemeMode _getThemeModeFromString(String theme) {
-    switch (theme) {
+  ThemeMode _themeFromString(String value) {
+    switch (value) {
       case 'light':
         return ThemeMode.light;
       case 'dark':
         return ThemeMode.dark;
       case 'system':
-        return ThemeMode.system;
       default:
-        return ThemeMode.dark;
+        return ThemeMode.system;
     }
   }
 
-  String _getStringFromThemeMode(ThemeMode mode) {
+  String _stringFromTheme(ThemeMode mode) {
     switch (mode) {
       case ThemeMode.light:
         return 'light';
       case ThemeMode.dark:
         return 'dark';
       case ThemeMode.system:
+      default:
         return 'system';
     }
   }
@@ -57,7 +63,8 @@ class ThemeManager extends ChangeNotifier {
       case ThemeMode.dark:
         return 'Dark';
       case ThemeMode.system:
-        return 'System';
+      default:
+        return 'System Default';
     }
   }
 }

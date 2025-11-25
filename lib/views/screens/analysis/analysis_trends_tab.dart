@@ -1,7 +1,9 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:money_mirror/core/utils/app_colors.dart';
+import 'package:money_mirror/core/utils/image_paths.dart';
 import 'package:money_mirror/core/utils/log_utils.dart';
 import 'package:money_mirror/core/utils/pref_currency_symbol.dart';
 
@@ -234,10 +236,10 @@ class AnalysisTrendsTab extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.show_chart,
-            size: isCompact ? 32 : 64,
+          SvgPicture.asset(
+            ImagePaths.icChart,
             color: theme.textTheme.bodySmall?.color,
+            height: isCompact ? 32 : 64,
           ),
           const SizedBox(height: 8),
           Text(

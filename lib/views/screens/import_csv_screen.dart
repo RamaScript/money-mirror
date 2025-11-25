@@ -1,7 +1,8 @@
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:money_mirror/core/utils/csv_importer.dart';
+import 'package:money_mirror/core/utils/image_paths.dart';
 import 'package:money_mirror/core/utils/log_utils.dart';
 
 class ImportCsvScreen extends StatefulWidget {
@@ -161,12 +162,20 @@ class _ImportCsvScreenState extends State<ImportCsvScreen> {
           onPressed: () {
             Navigator.pop(context);
           },
-          icon: Icon(CupertinoIcons.back),
+          icon: SvgPicture.asset(
+            ImagePaths.icArrowLeft,
+            colorFilter: ColorFilter.mode(
+              Theme.of(context).colorScheme.onSurface,
+              BlendMode.srcIn,
+            ),
+            height: 24,
+          ),
         ),
         title: const Text(
           'Import CSV',
-          style: TextStyle(fontWeight: FontWeight.w600),
+          style: TextStyle(fontWeight: FontWeight.w400),
         ),
+        centerTitle: true,
         elevation: 0,
       ),
       body: SingleChildScrollView(

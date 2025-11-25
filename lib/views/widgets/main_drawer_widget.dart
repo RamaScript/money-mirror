@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:money_mirror/app_routes.dart';
 import 'package:money_mirror/core/utils/app_colors.dart';
 import 'package:money_mirror/core/utils/image_paths.dart';
@@ -26,12 +27,18 @@ class MainDrawerWidget extends StatelessWidget {
             //     Navigator.pushNamed(context, AppRoutes.settingsScreen),
             //   },
             // ),
-            _buildThemeSection(context),
+            _buildThemeSection(context, theme),
             _buildListItemsDivider(theme),
-            _buildListItemsHeader(title: "Management", theme: theme),
+            _buildListItemsHeader(
+              title: "Management",
+              theme: theme,
+              context: context,
+            ),
             _buildDrawerItem(
+              context: context,
+
               title: "Import Records ",
-              icon: Icons.upload,
+              icon: ImagePaths.icImport,
               theme: theme,
               onTap: () =>
                   Navigator.pushNamed(context, AppRoutes.importCsvScreen),
@@ -49,13 +56,19 @@ class MainDrawerWidget extends StatelessWidget {
             //   onTap: () => {},
             // ),
             _buildDrawerItem(
+              context: context,
+
               title: "Delete and Reset ",
-              icon: Icons.delete_forever,
+              icon: ImagePaths.icBin,
               theme: theme,
               onTap: () => _showDeleteConfirmationDialog(context),
             ),
             _buildListItemsDivider(theme),
-            _buildListItemsHeader(title: "Application", theme: theme),
+            _buildListItemsHeader(
+              title: "Application",
+              theme: theme,
+              context: context,
+            ),
 
             // _buildDrawerItem(
             //   title: "Pro Version ",
@@ -70,8 +83,10 @@ class MainDrawerWidget extends StatelessWidget {
             //   onTap: () => {},
             // ),
             _buildDrawerItem(
+              context: context,
+
               title: "Demo ",
-              icon: Icons.slideshow,
+              icon: ImagePaths.icDemo,
               theme: theme,
               onTap: () {
                 Navigator.pop(context);
@@ -112,6 +127,7 @@ class MainDrawerWidget extends StatelessWidget {
                 "Money Mirror",
                 style: TextStyle(
                   fontSize: 22,
+                  fontFamily: "Pacifico",
                   color: theme.textTheme.titleLarge?.color,
                 ),
               ),
@@ -127,32 +143,46 @@ class MainDrawerWidget extends StatelessWidget {
   }
 
   Widget _buildDrawerItem({
+    required BuildContext context,
     required String title,
-    required IconData icon,
+    required String icon,
     required ThemeData theme,
     required VoidCallback onTap,
   }) {
     return InkWell(
       onTap: onTap,
       child: ListTile(
-        leading: Icon(icon, color: theme.iconTheme.color),
+        leading: SvgPicture.asset(
+          icon,
+          color: Theme.of(context).colorScheme.primary,
+          height: 24,
+        ),
         title: Text(
           title,
-          style: TextStyle(color: theme.textTheme.bodyLarge?.color),
+          style: TextStyle(
+            color: theme.textTheme.bodySmall?.color,
+            fontSize: 14,
+            fontWeight: FontWeight.w300,
+          ),
         ),
       ),
     );
   }
 
   Widget _buildListItemsHeader({
+    required BuildContext context,
     required String title,
     required ThemeData theme,
   }) {
     return Padding(
-      padding: EdgeInsets.only(left: 12),
+      padding: const EdgeInsets.only(left: 12, top: 6, bottom: 4),
       child: Text(
         title,
-        style: TextStyle(fontSize: 12, color: theme.textTheme.bodySmall?.color),
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w400,
+          color: Theme.of(context).colorScheme.primary,
+        ),
       ),
     );
   }
@@ -161,19 +191,30 @@ class MainDrawerWidget extends StatelessWidget {
     return Divider(color: theme.dividerColor);
   }
 
-  Widget _buildThemeSection(BuildContext context) {
+  Widget _buildThemeSection(BuildContext context, ThemeData theme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: EdgeInsets.only(left: 12, top: 8, bottom: 8),
-          child: Text("Theme ", style: TextStyle(fontSize: 12)),
-        ),
+        _buildListItemsDivider(theme),
+
+        _buildListItemsHeader(context: context, title: "Theme", theme: theme),
         ListTile(
-          leading: Icon(Icons.brightness_6),
+          leading: SvgPicture.asset(
+            ImagePaths.icApperance,
+            color: Theme.of(context).colorScheme.primary,
+            height: 32,
+          ),
           title: Text("Appearance "),
-          subtitle: Text(themeManager.currentThemeName),
-          trailing: Icon(Icons.arrow_forward_ios, size: 16),
+          subtitle: Text(
+            themeManager.currentThemeName,
+
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w300),
+          ),
+          trailing: Icon(
+            Icons.arrow_forward_ios,
+            size: 16,
+            color: Theme.of(context).colorScheme.primary,
+          ),
           onTap: () => _showThemeDialog(context),
         ),
       ],

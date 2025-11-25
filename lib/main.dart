@@ -60,6 +60,7 @@ class _MyAppState extends State<MyApp> {
 }
 
 final ThemeData _darkTheme = ThemeData(
+  fontFamily: 'Poppins',
   brightness: Brightness.dark,
   colorScheme: ColorScheme.dark(
     primary: AppColors.primaryColor,
@@ -92,6 +93,7 @@ final ThemeData _darkTheme = ThemeData(
 );
 
 final ThemeData _lightTheme = ThemeData(
+  fontFamily: 'Poppins',
   brightness: Brightness.light,
   colorScheme: ColorScheme.fromSeed(
     seedColor: AppColors.primaryColor,
