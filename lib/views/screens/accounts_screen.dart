@@ -154,7 +154,6 @@ class _AccountsScreenState extends State<AccountsScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
@@ -329,7 +328,7 @@ class AccountCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final balance = account.balance ?? 0;
+    final balance = account.balance;
     final isNegative = balance < 0;
 
     return Container(

@@ -301,7 +301,6 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
@@ -476,7 +475,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   }
 
   Widget _buildTypeChip(String label, String value) {
-    final theme = Theme.of(context);
+    Theme.of(context);
     final isSelected = selectedType == value;
     return GestureDetector(
       onTap: () => _changeType(value),

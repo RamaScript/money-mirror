@@ -51,7 +51,6 @@ class _AnalysisScreenState extends State<AnalysisScreen>
   String selectedAccountView = 'combined'; // 'combined' or account ID
 
   late AnimationController _slideController;
-  late Animation<Offset> _slideAnimation;
 
   @override
   void initState() {
@@ -62,10 +61,6 @@ class _AnalysisScreenState extends State<AnalysisScreen>
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
-    _slideAnimation =
-        Tween<Offset>(begin: const Offset(1.0, 0.0), end: Offset.zero).animate(
-          CurvedAnimation(parent: _slideController, curve: Curves.easeInOut),
-        );
     _updateDateRange();
     appLog("📊 [AnalysisScreen] Calling _loadData() from initState");
     _loadData();
@@ -457,7 +452,7 @@ class _AnalysisScreenState extends State<AnalysisScreen>
             margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              color: AppColors.TertiaryColor, // background uses theme
+              color: AppColors.tertiaryColor, // background uses theme
               borderRadius: BorderRadius.circular(14),
             ),
             child: TabBar(

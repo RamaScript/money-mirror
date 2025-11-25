@@ -33,7 +33,6 @@ class _HomeScreenState extends State<HomeScreen>
   DateTime? customEndDate;
 
   late AnimationController _slideController;
-  late Animation<Offset> _slideAnimation;
 
   @override
   void initState() {
@@ -43,10 +42,6 @@ class _HomeScreenState extends State<HomeScreen>
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
-    _slideAnimation =
-        Tween<Offset>(begin: const Offset(1.0, 0.0), end: Offset.zero).animate(
-          CurvedAnimation(parent: _slideController, curve: Curves.easeInOut),
-        );
     _updateDateRange();
     appLog("🏠 [HomeScreen] Calling loadData() from initState");
     loadData();
@@ -526,7 +521,7 @@ class _HomeScreenState extends State<HomeScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [AppColors.TertiaryColor, AppColors.primaryColor],
+          colors: [AppColors.tertiaryColor, AppColors.primaryColor],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),

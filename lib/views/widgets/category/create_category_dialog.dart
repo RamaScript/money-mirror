@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:money_mirror/core/utils/app_colors.dart';
 import 'package:money_mirror/core/utils/app_strings.dart';
 import 'package:money_mirror/core/utils/snack_utils.dart';
 import 'package:money_mirror/database/dao/category_dao.dart';
 import 'package:money_mirror/models/category_model.dart';
+
 import '../custom_text_field.dart';
 
 class CreateCategoryDialog extends StatefulWidget {
@@ -55,7 +55,8 @@ class CreateCategoryDialogState extends State<CreateCategoryDialog> {
     // Check for duplicate names
     final allCategories = await CategoryDao.getCategories();
     final duplicateName = allCategories.any(
-      (cat) => cat['name'].toString().toLowerCase() == name.toLowerCase() &&
+      (cat) =>
+          cat['name'].toString().toLowerCase() == name.toLowerCase() &&
           cat['type'] == selectedType,
     );
 
@@ -72,7 +73,10 @@ class CreateCategoryDialogState extends State<CreateCategoryDialog> {
 
     if (duplicateEmoji) {
       setState(() => iconError = "This emoji is already used");
-      SnackUtils.error(context, "This emoji is already used for another category");
+      SnackUtils.error(
+        context,
+        "This emoji is already used for another category",
+      );
       return;
     }
 
@@ -172,10 +176,7 @@ class CreateCategoryDialogState extends State<CreateCategoryDialog> {
                 const SizedBox(height: 4),
                 Text(
                   nameError!,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.red,
-                  ),
+                  style: const TextStyle(fontSize: 12, color: Colors.red),
                 ),
               ],
 
@@ -214,10 +215,7 @@ class CreateCategoryDialogState extends State<CreateCategoryDialog> {
                 const SizedBox(height: 4),
                 Text(
                   iconError!,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.red,
-                  ),
+                  style: const TextStyle(fontSize: 12, color: Colors.red),
                 ),
               ],
 
@@ -236,7 +234,16 @@ class CreateCategoryDialogState extends State<CreateCategoryDialog> {
                 spacing: 8,
                 runSpacing: 8,
                 children: [
-                  for (var e in ["🍔", "🛒", "💵", "🎉", "🚗", "📚", "🏠", "💊"])
+                  for (var e in [
+                    "🍔",
+                    "🛒",
+                    "💵",
+                    "🎉",
+                    "🚗",
+                    "📚",
+                    "🏠",
+                    "💊",
+                  ])
                     GestureDetector(
                       onTap: () {
                         setState(() {
@@ -253,10 +260,7 @@ class CreateCategoryDialogState extends State<CreateCategoryDialog> {
                             color: theme.colorScheme.primary.withOpacity(0.3),
                           ),
                         ),
-                        child: Text(
-                          e,
-                          style: const TextStyle(fontSize: 24),
-                        ),
+                        child: Text(e, style: const TextStyle(fontSize: 24)),
                       ),
                     ),
                 ],
@@ -272,7 +276,9 @@ class CreateCategoryDialogState extends State<CreateCategoryDialog> {
                     onPressed: () => Navigator.pop(context),
                     child: Text(
                       "Cancel",
-                      style: TextStyle(color: theme.textTheme.bodyMedium?.color),
+                      style: TextStyle(
+                        color: theme.textTheme.bodyMedium?.color,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -352,9 +358,7 @@ class CreateCategoryDialogState extends State<CreateCategoryDialog> {
           style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w600,
-            color: isSelected
-                ? Colors.white
-                : theme.textTheme.bodyLarge?.color,
+            color: isSelected ? Colors.white : theme.textTheme.bodyLarge?.color,
           ),
         ),
       ),

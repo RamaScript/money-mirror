@@ -30,7 +30,6 @@ class _BudgetScreenState extends State<BudgetScreen>
   double totalSpent = 0.0;
 
   late AnimationController _slideController;
-  late Animation<Offset> _slideAnimation;
 
   @override
   void initState() {
@@ -40,10 +39,6 @@ class _BudgetScreenState extends State<BudgetScreen>
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
-    _slideAnimation =
-        Tween<Offset>(begin: const Offset(1.0, 0.0), end: Offset.zero).animate(
-          CurvedAnimation(parent: _slideController, curve: Curves.easeInOut),
-        );
     appLog("💰 [BudgetScreen] Calling _loadBudgets() from initState");
     _loadBudgets();
   }

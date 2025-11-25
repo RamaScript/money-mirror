@@ -3,6 +3,7 @@ import 'package:money_mirror/core/utils/app_colors.dart';
 import 'package:money_mirror/core/utils/theme_mananger.dart';
 
 import 'app_routes.dart';
+import 'database/database_seeder.dart';
 
 // Global theme manager instance
 final themeManager = ThemeManager();
@@ -11,7 +12,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Seed database with default data on first launch
-  // await DatabaseSeeder.seedIfNeeded();
+  await DatabaseSeeder.seedIfNeeded();
   runApp(const MyApp());
 }
 

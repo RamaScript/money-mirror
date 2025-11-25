@@ -367,7 +367,6 @@ class AnalysisOverviewTab extends StatelessWidget {
 
     final sortedDates = allDates.toList()..sort();
     final firstDate = sortedDates.first;
-    final lastDate = sortedDates.last;
     final month = firstDate.month;
     final year = firstDate.year;
 

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:money_mirror/core/utils/app_colors.dart';
 import 'package:money_mirror/core/utils/app_strings.dart';
 import 'package:money_mirror/core/utils/snack_utils.dart';
 import 'package:money_mirror/database/dao/category_dao.dart';
@@ -121,10 +120,7 @@ class EditCategoryDialogState extends State<EditCategoryDialog> {
                 const SizedBox(height: 4),
                 Text(
                   nameError!,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.red,
-                  ),
+                  style: const TextStyle(fontSize: 12, color: Colors.red),
                 ),
               ],
 
@@ -163,10 +159,7 @@ class EditCategoryDialogState extends State<EditCategoryDialog> {
                 const SizedBox(height: 4),
                 Text(
                   iconError!,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.red,
-                  ),
+                  style: const TextStyle(fontSize: 12, color: Colors.red),
                 ),
               ],
 
@@ -185,7 +178,16 @@ class EditCategoryDialogState extends State<EditCategoryDialog> {
                 spacing: 8,
                 runSpacing: 8,
                 children: [
-                  for (var e in ["🍔", "🛒", "💵", "🎉", "🚗", "📚", "🏠", "💊"])
+                  for (var e in [
+                    "🍔",
+                    "🛒",
+                    "💵",
+                    "🎉",
+                    "🚗",
+                    "📚",
+                    "🏠",
+                    "💊",
+                  ])
                     GestureDetector(
                       onTap: () {
                         setState(() {
@@ -202,10 +204,7 @@ class EditCategoryDialogState extends State<EditCategoryDialog> {
                             color: theme.colorScheme.primary.withOpacity(0.3),
                           ),
                         ),
-                        child: Text(
-                          e,
-                          style: const TextStyle(fontSize: 24),
-                        ),
+                        child: Text(e, style: const TextStyle(fontSize: 24)),
                       ),
                     ),
                 ],
@@ -221,7 +220,9 @@ class EditCategoryDialogState extends State<EditCategoryDialog> {
                     onPressed: () => Navigator.pop(context),
                     child: Text(
                       "Cancel",
-                      style: TextStyle(color: theme.textTheme.bodyMedium?.color),
+                      style: TextStyle(
+                        color: theme.textTheme.bodyMedium?.color,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -262,7 +263,7 @@ class EditCategoryDialogState extends State<EditCategoryDialog> {
       ),
     );
   }
-  
+
   Widget buildIconToggle(ThemeData theme) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -308,9 +309,7 @@ class EditCategoryDialogState extends State<EditCategoryDialog> {
           style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w600,
-            color: isSelected
-                ? Colors.white
-                : theme.textTheme.bodyLarge?.color,
+            color: isSelected ? Colors.white : theme.textTheme.bodyLarge?.color,
           ),
         ),
       ),

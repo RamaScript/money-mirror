@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:money_mirror/core/utils/app_colors.dart';
 import 'package:money_mirror/views/widgets/filter_dialog.dart';
 
 class MonthSelectorWidget extends StatelessWidget {
@@ -80,7 +79,7 @@ class MonthSelectorWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -117,37 +116,38 @@ class MonthSelectorWidget extends StatelessWidget {
               ),
             ),
           ),
-          
+
           const SizedBox(width: 16),
-          
+
           // Date Display
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-              Text(
-                _getDisplayText(),
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: theme.textTheme.titleLarge?.color,
+                Text(
+                  _getDisplayText(),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: theme.textTheme.titleLarge?.color,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 2),
-              Text(
-                _getSubtitleText(),
-                style: TextStyle(
-                  fontSize: 12,
-                  color: theme.textTheme.bodySmall?.color,
+                const SizedBox(height: 2),
+                Text(
+                  _getSubtitleText(),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: theme.textTheme.bodySmall?.color,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
-              ),
-            ]),
+              ],
+            ),
           ),
-          
+
           const SizedBox(width: 16),
-          
+
           // Next Button
           Material(
             color: Colors.transparent,
@@ -168,7 +168,7 @@ class MonthSelectorWidget extends StatelessWidget {
               ),
             ),
           ),
-          
+
           // Filter Button
           if (showFilterButton) ...[
             const SizedBox(width: 12),
