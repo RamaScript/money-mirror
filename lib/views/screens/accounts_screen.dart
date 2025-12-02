@@ -6,9 +6,8 @@ import 'package:money_mirror/core/utils/pref_currency_symbol.dart';
 import 'package:money_mirror/database/dao/account_dao.dart';
 import 'package:money_mirror/database/dao/transaction_dao.dart';
 import 'package:money_mirror/models/account_model.dart';
+import 'package:money_mirror/views/widgets/account/account_dialog.dart';
 import 'package:money_mirror/views/widgets/account/account_transactions_bottom_sheet.dart';
-import 'package:money_mirror/views/widgets/account/create_account_dialog.dart';
-import 'package:money_mirror/views/widgets/account/edit_account_dialog.dart';
 
 /// ---------- STATE MODEL (KEPT IN SAME FILE) ----------
 
@@ -61,7 +60,7 @@ class _AccountsScreenState extends State<AccountsScreen> {
     final accountData = await AccountDao.getAccounts();
     final expensesGrouped = await TransactionDao.getExpensesGrouped();
     final incomeGrouped = await TransactionDao.getIncomeGrouped();
-    final transferImpact = await TransactionDao.getTransferImpact(); // ✅ NEW
+    final transferImpact = await TransactionDao.getTransferImpact();
 
     double totalBalance = 0;
     double totalIncome = 0;
@@ -77,10 +76,9 @@ class _AccountsScreenState extends State<AccountsScreen> {
       final initial = (map['initial_amount'] as num?)?.toDouble() ?? 0.0;
       final income = incomeGrouped[id] ?? 0.0;
       final expense = expensesGrouped[id] ?? 0.0;
-      final transfer = transferImpact[id] ?? 0.0; // ✅ NEW: Get transfer impact
+      final transfer = transferImpact[id] ?? 0.0;
 
-      // ✅ NEW: Balance = initial + income - expense + transfer impact
-      // Transfer impact is: (money received from transfers) - (money sent via transfers)
+      // Balance = initial + income - expense + transfer impact
       final balance = initial + income - expense + transfer;
 
       balances[id] = balance;
@@ -107,15 +105,15 @@ class _AccountsScreenState extends State<AccountsScreen> {
   void _openAddAccountDialog() {
     showDialog(
       context: context,
-      builder: (_) => CreateAccountDialog(onAdded: loadAccounts),
+      builder: (context) => AccountDialog(onSaved: loadAccounts),
     );
   }
 
   void _openEditAccountDialog(AccountModel account) {
     showDialog(
       context: context,
-      builder: (_) =>
-          EditAccountDialog(account: account, onAdded: loadAccounts),
+      builder: (context) =>
+          AccountDialog(account: account, onSaved: loadAccounts),
     );
   }
 
@@ -306,7 +304,6 @@ class _AccountsScreenState extends State<AccountsScreen> {
             color: Theme.of(context).colorScheme.primary,
             height: 64,
           ),
-
           const SizedBox(height: 16),
           Text("No accounts added", style: theme.textTheme.titleLarge),
           const SizedBox(height: 6),
@@ -349,9 +346,10 @@ class AccountCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.cardColor,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8),
-        ],
+        // boxShadow: [
+        //   BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8),
+        // ],
+        border: Border.all(width: 0.5, color: theme.colorScheme.primary),
       ),
       child: InkWell(
         onTap: onTap,

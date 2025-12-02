@@ -4,9 +4,8 @@ import 'package:money_mirror/core/utils/app_strings.dart';
 import 'package:money_mirror/core/utils/image_paths.dart';
 import 'package:money_mirror/database/dao/category_dao.dart';
 import 'package:money_mirror/models/category_model.dart';
+import 'package:money_mirror/views/widgets/category/category_dialog.dart';
 import 'package:money_mirror/views/widgets/category/category_transactions_bottom_sheet.dart';
-import 'package:money_mirror/views/widgets/category/create_category_dialog.dart';
-import 'package:money_mirror/views/widgets/category/edit_category_dialog.dart';
 
 class CategoriesScreen extends StatefulWidget {
   const CategoriesScreen({super.key});
@@ -45,25 +44,23 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     });
   }
 
+  void _refreshCategories() {
+    loadCategories();
+  }
+
   void _openAddCategoryDialog() {
     showDialog(
       context: context,
-      builder: (_) => CreateCategoryDialog(
-        onAdded: () {
-          loadCategories();
-        },
-      ),
+      builder: (context) => CategoryDialog(onSaved: _refreshCategories),
     );
   }
 
   void _openEditCategoryDialog({required CategoryModel category}) {
     showDialog(
       context: context,
-      builder: (_) => EditCategoryDialog(
-        onAdded: () {
-          loadCategories();
-        },
-        category: category,
+      builder: (context) => CategoryDialog(
+        category: category, // Pass the category to enable edit mode
+        onSaved: _refreshCategories,
       ),
     );
   }
@@ -166,16 +163,23 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.only(
+            left: 16.0,
+            right: 16,
+            bottom: 4,
+            top: 16,
+          ),
           child: Text(
             title,
             style: TextStyle(
               fontSize: 20,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w500,
               color: theme.textTheme.titleLarge?.color,
             ),
           ),
         ),
+        Divider(),
+
         ...items.asMap().entries.map((entry) {
           final index = entry.key;
           final cat = entry.value;
@@ -191,17 +195,10 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     ThemeData theme,
   ) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         color: theme.cardColor,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
       child: Material(
         color: Colors.transparent,
@@ -214,16 +211,16 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               children: [
                 // Icon
                 Container(
-                  width: 56,
-                  height: 56,
+                  width: 42,
+                  height: 42,
                   decoration: BoxDecoration(
                     color: theme.colorScheme.primary.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: Center(
                     child: Text(
                       category.icon,
-                      style: const TextStyle(fontSize: 24),
+                      style: const TextStyle(fontSize: 20),
                     ),
                   ),
                 ),
@@ -235,7 +232,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                     category.name,
                     style: TextStyle(
                       fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w400,
                       color: theme.textTheme.titleLarge?.color,
                     ),
                   ),
@@ -293,7 +290,6 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
             color: Theme.of(context).colorScheme.primary,
             height: 64,
           ),
-
           const SizedBox(height: 16),
           Text(
             "No categories added",
